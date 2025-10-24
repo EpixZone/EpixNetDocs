@@ -93,7 +93,7 @@ Request a file from the client
 
 Parameter            | Description
                  --- | ---
-**site**             | Site address (example: 1EU1tbG9oC1A8jz2ouVwGZyQ5asrNsE4Vr)
+**site**             | Site address (example: epix1dfex87hetzpehgc0exnu5e72u74qafgzdejjws)
 **inner_path**       | File path relative to site directory
 **location**         | Request file from this byte (max 512 bytes got sent in a request, so you need multiple requests for larger files)
 **file_size**        | Total size of the requested file (optional)
@@ -150,7 +150,7 @@ Peers packed to 6 bytes (4byte IP using inet_ntoa + 2byte for port)
 
 Parameter            | Description
                  --- | ---
-**site**             | Site address (example: 1EU1tbG9oC1A8jz2ouVwGZyQ5asrNsE4Vr)
+**site**             | Site address (example: epix1dfex87hetzpehgc0exnu5e72u74qafgzdejjws)
 **peers**            | List of peers that the requester has (packed)
 **peers_onion**      | List of Tor Onion peers that the requester has (packed)
 **need**             | Number of peers the requester want
@@ -184,7 +184,7 @@ Update a site file.
 
 Parameter            | Description
                  --- | ---
-**site**             | Site address (example: 1EU1tbG9oC1A8jz2ouVwGZyQ5asrNsE4Vr)
+**site**             | Site address (example: epix1dfex87hetzpehgc0exnu5e72u74qafgzdejjws)
 **inner_path**       | File path relative to site directory
 **body**             | Full content of the updated content.json
 **diffs** (optional) | [Diff opcodes](#possible-diff-opcodes) for the modified files in the content.json
@@ -223,7 +223,7 @@ Lists the content.json files modified since the given parameter. It used to fetc
 
 Parameter            | Description
                  --- | ---
-**site**             | Site address (example: 1EU1tbG9oC1A8jz2ouVwGZyQ5asrNsE4Vr)
+**site**             | Site address (example: epix1dfex87hetzpehgc0exnu5e72u74qafgzdejjws)
 **since**            | List content.json files since this timestamp.
 
 **Return**:
@@ -235,31 +235,18 @@ Return key           | Description
 **Example**:
 
 ```json
-> epixnet.py --silent peerCmd 127.0.0.1 15441 listModified "{'site': '1BLogC9LN4oPDcruNz3qo1ysa133E9AGg8', 'since': 1497507030}"
+> epixnet.py --silent peerCmd 127.0.0.1 15441 listModified "{'site': 'epix18l0gy59ka9ka89wm9mwsspfmkcv9tvf7g0cs6f', 'since': 1497507030}"
 {
   "to": 1,
   "cmd": "response",
   "modified_files": {
-    "data/users/1NM9k7VJfrb1UWw5agAvyRfSn3ws1wTJ5U/content.json": 1497579272,
-    "data/users/1QEfmMwKVxgR4rkREbdJYjgUmF3Zy8pwHt/content.json": 1497565986,
-    "data/users/16NS3rBdW9zpLmLSQoD8nLTtNVsRFtVBhd/content.json": 1497575039,
-    "data/users/1CjXarXgvcNeCJ2nMQxUi4DRFWp3GEur2W/content.json": 1497513808,
-    "data/users/1L5rGDgTs4W2V7gekSvJNhKa7XaHkVwotD/content.json": 1497615798,
-    "data/users/1LWuc6JBhUGrKEAh1aPrPU85dEMcKmg3pS/content.json": 1497594716,
-    "data/users/1KdnTJVBGzEZrJppFZtzfG9chukuMv8xSb/content.json": 1497584640,
-    "data/users/1GMNmr2bDPbT4c8yVnyCoDHke52CNCdqAa/content.json": 1497614188,
-    "data/users/1GRm9rED83Tkfi3iWS9m3LWHiRpPZehWLd/content.json": 1497827772,
-    "data/users/12Ugp53jiMdvj1Kxa1w7c2LcXUBdGPs1oK/content.json": 1497692901,
-    "data/users/1F6BMqittjWUStzUbRXm2kG2GQ3RdBLqFQ/content.json": 1497571485,
-    "data/users/1GgNo3CmxPd7n2pMSF3uyqf1XHvgtTUqCe/content.json": 1497560829,
-    "data/users/16nArdxrSaNThNp83kL8E6NLL9WD98iUne/content.json": 1497627929,
-    "data/users/16CAJkbfNRxNJq4aKdrZ2MSYFfFGvQ8JPi/content.json": 1497664899,
-    "data/users/1DrBS2sTD3BX5BBxG8eqYsxXSvGt9kc5HE/content.json": 1497632000,
-    "data/users/19sggoAZ4hcorrrfWoFWP9rwfpVsL29cnZ/content.json": 1497928134,
-    "data/users/1NYpJupegoTXL4cFpkNdLNJ4XaAhTNhPe1/content.json": 1497535771,
-    "data/users/1R67TfYzNkCnh89EFfGmXn5LMb4hXaMRQ/content.json": 1497691787,
-    "data/users/1C9HXUYFSVafLxanwkaFPZRcRgCEGsj2Cn/content.json": 1497572833,
-    "data/users/1LgoHzNGWeijeZbJ8a1YgGjMCnjaM4BWG/content.json": 1497620232,
+    "data/users/epix1eyflhfsxhwe3j69uw6kqghzr7lp2sz39pr8w2y/content.json": 1497579272,
+    "data/users/epix15jzsdsgzugjvhfhazk0gxzxx06vcw0tph5anh3/content.json": 1497565986,
+    "data/users/epix1udzz3q0spdcxlah0wxs0uklm9drc84atulngwc/content.json": 1497575039,
+    "data/users/epix1z3ler7s0wkzflr57vd4wyaecevekcvcev7vh42/content.json": 1497513808,
+    "data/users/epix1g97jc9jmj4hwc7xlux8868tn5gjk56g4ln5nee/content.json": 1497615798,
+    "data/users/epix16p5axgh3k6tr9m3zlcsq2tqu9a6canatsgu4zl/content.json": 1497594716,
+    "data/users/epix1gx9pnln3tvefzh943wqj9eppvlghckva28vsa0/content.json": 1497584640,
     "content.json": 1497623639
   }
 }
@@ -273,7 +260,7 @@ Get the client's downloaded [optional file ids](#optional-file-id).
 
 Parameter            | Description
                  --- | ---
-**site**             | Site address (example: 1EU1tbG9oC1A8jz2ouVwGZyQ5asrNsE4Vr)
+**site**             | Site address (example: epix1dfex87hetzpehgc0exnu5e72u74qafgzdejjws)
 
 **Return**:
 
@@ -283,7 +270,7 @@ Return key           | Description
 
 **Example**:
 ```json
-> epixnet.py --silent peerCmd 192.168.1.13 15441 getHashfield "{'site': '1Gif7PqWTzVWDQ42Mo7np3zXmGAo3DXc7h'}
+> epixnet.py --silent peerCmd 192.168.1.13 15441 getHashfield "{'site': 'epix10q6hn8m3sr352ypndwh064wfssdj4hfe04ms7n'}
 {
   'to': 1,
   'hashfield_raw': 'iG\xde\x02\xc6o\r;...',
@@ -299,7 +286,7 @@ Set the list of [optional file ids](#optional-file-id) that the requester client
 
 Parameter            | Description
                  --- | ---
-**site**             | Site address (example: 1EU1tbG9oC1A8jz2ouVwGZyQ5asrNsE4Vr)
+**site**             | Site address (example: epix1dfex87hetzpehgc0exnu5e72u74qafgzdejjws)
 **hashfield_raw**    | Optional file ids encoded using `array.array("H", [1000, 1001..]).tostring()`
 
 **Return**:
@@ -317,7 +304,7 @@ Queries if the client know any peer that has the requested hash_ids
 
 Parameter            | Description
                  --- | ---
-**site**             | Site address (example: 1EU1tbG9oC1A8jz2ouVwGZyQ5asrNsE4Vr)
+**site**             | Site address (example: epix1dfex87hetzpehgc0exnu5e72u74qafgzdejjws)
 **hash_ids**         | List of optional file ids the client currently looking for
 
 **Return**:
@@ -329,7 +316,7 @@ Return key           | Description
 
 **Example**:
 ```json
-> epixnet.py --silent peerCmd 192.168.1.13 15441 findHashIds "{'site': '1Gif7PqWTzVWDQ42Mo7np3zXmGAo3DXc7h', 'hash_ids': [59948, 29811]}"
+> epixnet.py --silent peerCmd 192.168.1.13 15441 findHashIds "{'site': 'epix10q6hn8m3sr352ypndwh064wfssdj4hfe04ms7n', 'hash_ids': [59948, 29811]}"
 {
   'to': 1,
   'peers': {
