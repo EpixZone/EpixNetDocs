@@ -38,7 +38,7 @@ The site address's BIP32 sub-key index of your BIP32 seed. Auto-added when you c
 
 Only for cloned sites. The site address where the site is cloned from.
 
-**Example**: epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl
+**Example**: epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2
 
 ---
 

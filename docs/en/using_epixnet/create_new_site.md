@@ -20,24 +20,24 @@
 ```bash
 $ epixnet.py siteCreate
 ...
-- Site private key: 23DKQpzxhbVBrAtvLEc2uvk7DZweh4qL3fn3jpM3LgHDczMK2TtYUq
-- Site address: epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl
+- Site private key: 82e275a0cd01d33e4fbfb407f76c476997a26b42d07b675fb049e7b8cac0f15b
+- Site address: epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2
 ...
 - Site created!
 $ epixnet.py
 ...
 ```
 
-- This will create the initial files for your site inside ```data/epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl```.
+- This will create the initial files for your site inside ```data/epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2```.
 
 ### 2. Build/Modify site
 
-* Update the site files located in ```data/[your site address key]``` (eg: epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl).
+* Update the site files located in ```data/[your site address key]``` (eg: epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2).
 * When your site is ready run:
 
 ```bash
-$ epixnet.py siteSign epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl
-- Signing site: epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl...
+$ epixnet.py siteSign epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2
+- Signing site: epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2...
 Private key (input hidden):
 ```
 
@@ -48,7 +48,7 @@ Private key (input hidden):
 * In order to inform peers about the changes you made you need to run:
 
 ```bash
-$ epixnet.py sitePublish epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl
+$ epixnet.py sitePublish epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2
 ...
 Site:13DNDk..bhC2 Publishing to 3/10 peers...
 Site:13DNDk..bhC2 Successfuly published to 3 peers
@@ -56,7 +56,7 @@ Site:13DNDk..bhC2 Successfuly published to 3 peers
 ```
 
 * That's it! You've successfully signed and published your modifications.
-* Your site will be accessible from: ```http://localhost:42222/epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl```
+* Your site will be accessible from: ```http://localhost:42222/epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2```
 
 
 **Next steps:** [EpixNet Developer Documentation](../../site_development/getting_started/)

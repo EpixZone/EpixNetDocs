@@ -180,25 +180,25 @@ The code below will do the following:
   "files": {},
   "ignore": ".*/.*",
   "includes": {
-    "epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl/content.json": {
+    "epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2/content.json": {
       "added": 1426683897,
       "files_allowed": "data.json",
       "includes_allowed": false,
       "max_size": 10000,
       "signers": [
-        "epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl"
+        "epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2"
       ],
       "signers_required": 1,
       "user_id": 15,
       "user_name": "meginthelloka"
     },
-    "epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl/content.json": {
+    "epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2/content.json": {
       "added": 1426687209,
       "files_allowed": "data.json",
       "includes_allowed": false,
       "max_size": 10000,
       "signers": [
-        "epix1k26m8v0n39qlqucfxk78gq6ajmc2wpx9w2s9zl"
+        "epix1testdgp9g99kgd0ej5u8js99tlkrdju8znr8d2"
       ],
       "signers_required": 1,
       "user_id": 18,
