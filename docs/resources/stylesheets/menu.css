@@ -1,0 +1,48 @@
+/* Cyberpunk Menu */
+.md-menu {
+  background-color: #0a0e27;
+  display: inline-block;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1);
+  border: 2px solid #00ffff;
+  border-radius: 0;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  z-index: 1000;
+  /*padding: 8px 18px;*/
+}
+
+.md-menu .md-list {
+  padding-left: 0;
+}
+
+.md-list-item__text {
+  color: #00ffff;
+  font-size: 1.2em;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+.md-list-item {
+  margin: 18px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.md-list-item:hover .md-list-item__text {
+  color: #ff00ff;
+  text-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+}
+
+.md-divider {
+  background-color: #00ffff;
+  height: 1px;
+  margin: 8px 1px;
+  display: block;
+  width: 100%;
+  box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+.md-source {
+  position: relative;
+}

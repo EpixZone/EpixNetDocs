@@ -1,0 +1,49 @@
+
+site_name: EpixNet
+site_url: https://epixnet.io
+site_description: Decentralized websites using Epix crypto and the BitTorrent network
+
+extra_css: [docs.css, stylesheets/menu.css]
+extra_javascript: [EpixFrame.js, jquery.min.js, javascripts/menu.js]
+
+repo_url: https://github.com/EpixZone/EpixNet
+
+markdown_extensions:
+- toc: {permalink: true}
+- codehilite
+- markdown.extensions.admonition
+- pymdownx.superfences
+- pymdownx.details
+
+docs_dir: docs/en
+
+nav:
+- Introduction: "index.md"
+- Frequently asked questions: "faq.md"
+- Start using EpixNet:
+  - "using_epixnet/installing.md"
+  - "using_epixnet/sample_sites.md"
+  - "using_epixnet/create_new_site.md"
+- Site Development:
+  - "site_development/getting_started.md"
+  - "site_development/epixframe_api_reference.md"
+  - "site_development/content_json.md"
+  - "site_development/dbschema_json.md"
+  - "site_development/cert_authority.md"
+- Help EpixNet development:
+  - "help_epixnet/contributing.md"
+  - "help_epixnet/coding_conventions.md"
+  - "help_epixnet/network_protocol.md"
+  - "help_epixnet/donate.md"
+
+
+theme:
+  palette:
+    scheme: "slate"
+    primary: "cyan"
+    accent: "deep purple"
+  logo: "logo/epixnet_logo.png"
+  name: "material"
+  favicon: "logo/favicon.ico"
+  custom_dir: "docs/resources"
+  

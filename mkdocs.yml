@@ -1,0 +1,55 @@
+
+site_name: EpixNet
+site_url: https://epixnet.io
+site_description: Decentralized peer-to-peer web platform using Epix cryptography and BitTorrent technology
+
+repo_url: https://github.com/EpixZone/EpixNet
+edit_uri: ../EpixNetDocs/edit/main/docs/en/
+
+extra_css: [docs.css, stylesheets/menu.css]
+extra_javascript: [EpixFrame.js, jquery.min.js, javascripts/menu.js]
+
+docs_dir: docs/en
+site_dir: site
+
+theme:
+  language: 'en'
+  palette:
+    scheme: "slate"
+    primary: "cyan"
+    accent: "deep purple"
+  logo: "logo/epixnet_logo.png"
+  name: "material"
+  favicon: "logo/favicon.ico"
+  custom_dir: "docs/resources"
+  font: false
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - codehilite
+  - markdown.extensions.admonition
+  - pymdownx.superfences
+  - pymdownx.details
+
+plugins:
+  - search:
+      lang: ['en']
+
+nav:
+- Introduction: "index.md"
+- Frequently asked questions: "faq.md"
+- Getting Started:
+  - "using_epixnet/installing.md"
+  - "using_epixnet/create_new_site.md"
+  - "using_epixnet/sample_sites.md"
+- Site Development:
+  - "site_development/getting_started.md"
+  - "site_development/epixframe_api_reference.md"
+  - "site_development/content_json.md"
+  - "site_development/dbschema_json.md"
+  - "site_development/cert_authority.md"
+- Contributing:
+  - "help_epixnet/contributing.md"
+  - "help_epixnet/coding_conventions.md"
+  - "help_epixnet/network_protocol.md"
