@@ -223,9 +223,27 @@ EpixNet site addresses are unique identifiers generated using secp256k1 elliptic
 
 #### What happens when someone hosts malicious content?
 
-The EpixNet sites are sandboxed, they have the same privileges as any other website you visit over the Internet.
-You are in full control of what you are hosting. If you find suspicious content you can stop hosting the site at any time.
+**Isolation & Responsibility**
 
+EpixNet sites are fully sandboxed, they operate independently and have the same privileges and limitations as any other website on the Internet. Each host is in complete control of what they publish and is legally responsible for their own content.
+
+If malicious or illegal material appears, it affects only that host, not the wider network. Hosts (or the community) can immediately stop serving or block that content at any time.
+
+**Community-Driven Safety**
+
+A feature discussed in the community is a community driven AI auditing network that:
+
+- Continuously scans public EpixNet sites for signs of malware, exploits, or illegal content
+- Assigns trust scores and safety ratings to sites
+- Feeds data into an optional blacklist plugin available for all EpixNet clients and search engines
+- Enables the EpixNet client to warn users before visiting unverified or unsafe sites (similar to a browser’s SSL warning)
+- Preserves user freedom: Users always retain the choice to proceed if they choose
+
+**The Philosophy**
+
+EpixNet doesn't censor: it isolates threats, promotes transparency, and empowers users to make informed decisions.
+
+> "Tools are intent neutral. This is why we need to protect ourselves from illegal usage of our tools." — Kane Nexus
 
 ---
 
