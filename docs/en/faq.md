@@ -1,321 +1,273 @@
+---
+description: Answers to common questions about using EpixNet, privacy, ports, backups, names and building xites.
+---
+
 # Frequently asked questions
 
+Short answers to the questions people ask most often about EpixNet, with links to the pages that go deeper. It is written for the current Rust node. If you are new, [How EpixNet works](start/how-it-works.md) gives the full picture and the [glossary](reference/glossary.md) defines the terms.
 
-#### Do I need to have a port opened?
+## The basics
 
-This is __optional__, you can browse and use EpixNet sites without an open port.
-If you want to create a new site it's highly recommended to have an open port.
+### What is EpixNet?
 
-At startup EpixNet tries to open a port for you on your router using
-[UPnP](https://wikipedia.org/wiki/Universal_Plug_and_Play), if this fails you have to do it manually:
+EpixNet is a peer-to-peer web platform. Websites, called *xites*, are stored on the computers of the people who visit them instead of on a central server. Each xite is signed by its owner, and every node verifies the signature and the file hashes before it accepts content from another peer. See [How EpixNet works](start/how-it-works.md).
 
-- Try to access your router's web interface using [http://192.168.1.1](http://192.168.1.1)
-or [http://192.168.0.1](http://192.168.0.1)
-- Look for an "Enable UPnP support" or similar option then restart EpixNet.
+### What is a xite?
 
-If it still doesn't work then try to find a 'port forwarding' section of your router page. This is different for every router. [Here is a tutorial on YouTube.](https://www.youtube.com/watch?v=aQXJ7sLSz14) The port to forward is 15441.
+A xite is a folder of web files plus a signed manifest named `content.json`. It is identified by an address that starts with `epix1`, and it may also have a `.epix` name. Xites range from static pages to full applications such as forums and mail. [Featured xites](start/apps.md) lists the official ones.
 
+### Which platforms are supported?
 
----
+| Platform | How you get it |
+| --- | --- |
+| Windows | Installer from the [releases page](https://github.com/EpixZone/EpixNet/releases) |
+| macOS | Disk image from the releases page |
+| Linux | `.deb`, `.rpm` or AppImage from the releases page |
+| Android | APK from the releases page. Requires Android 8 or later on a 64-bit ARM device. |
+| iOS | Built from source with Xcode. Store releases are in preparation. |
 
+You can also build every platform from source. Start at [Install EpixNet](start/install.md).
 
-#### Is EpixNet anonymous?
+### Is there a mobile app?
 
-It's no more anonymous than BitTorrent, but privacy (the possibility to find out who is the owner of the comment/site) will increase as the network and the sites gains more peers.
+Yes. The Android and iOS apps run the same node as the desktop, wrapped in a browser shell, with Tor and I2P built in. Some features differ:
 
-EpixNet is made to work with anonymity networks: you can easily hide your IP using the Tor network.
+- Phones do not accept incoming clearnet connections. They can still be reached through their Tor or I2P address.
+- Installing browser extensions from xites works on desktop and Android, not on iOS.
+- The iOS build leaves out the BitTorrent features.
+- On Android 10 or later, nearby devices can connect over Bluetooth or Wi-Fi Aware without Internet access.
 
+See [Install on Android](start/install-android.md) and [Install on iOS](start/install-ios.md).
 
----
+### Does it cost anything?
 
+The software is open source and free. Browsing, posting and hosting xites involve no fees. Registering a `.epix` name through xID costs a fee that is paid on Epix Chain, and any other chain transaction a xite asks you to sign carries the usual network fee.
 
-#### How to use EpixNet with the Tor browser?
+### Do I need a wallet or an account?
 
-In Tor mode it is recommended to use EpixNet from within the Tor Browser:
+Not to browse. To post in most community xites you need an xID identity, which means registering a `.epix` name with a wallet. EpixNet Browser includes the Epix Wallet. Some xites, such as Epix Mesh Chat, use *local profiles* instead and need neither. See [xID names and identity](start/xid.md).
 
-- Start the Tor Browser
-- Go to address `about:config` & accept risk warning
-- Search `no_proxies_on`
-- Double click the preference entry
-- Enter `127.0.0.1` & press OK
-- Open [http://127.0.0.1:42222](http://127.0.0.1:42222) in the browser
+### How is this different from the old Python version?
 
-If you still see a blank page:
+The Python implementation is archived. The current node is a rewrite in Rust, and several things changed along the way.
 
- - Click on NoScript's button (first on the toolbar)
- - Choose "Temporary allow all this page"
- - Reload the page
+| Area | Python version | Current Rust node |
+| --- | --- | --- |
+| Peer protocol | A msgpack-based protocol | EDX, which adds verified streaming and range requests. A current node accepts only EDX connections, so it does not exchange data with Python nodes. |
+| Tor | An external Tor program | Tor runs inside the node. I2P and Reticulum mesh are also built in. |
+| Browser | Any browser, pointed at the local port | EpixNet Browser on desktop (a managed Firefox with the Epix Wallet), plus Android and iOS apps. A system browser still works. |
+| Identity | Provider certificates, and later xID | Linked xID identities only. A node can hold several, with one default and a separate choice per xite. |
+| Private messaging | Encrypted messages stored in public user files, with visible metadata | Channels, which are designed to also hide who is talking to whom |
+| Terminology | Site | Xite. API command names such as `siteInfo` keep the old spelling. |
 
----
+What carried over: the address format, the signature scheme, the `content.json` signing rules and the `users.json` key file. On first start the Rust node migrates a Python-era profile it finds in its data folder. See [Python interoperability](internals/python-interop.md).
 
+## Privacy and safety
 
-#### How to use EpixNet with Tor?
+### Is EpixNet anonymous?
 
-If you want to hide your IP address, you can enable Tor support when running EpixNet:
+Not by default, and no setting makes it a guarantee.
 
-```bash
-python3 epixnet.py --tor always
-```
+- With Tor in its default `enable` mode, your node reaches onion peers through Tor but still connects directly to other peers. Those peers and the trackers see your IP address.
+- In `always` mode, all peer traffic is routed through Tor or I2P. This hides your IP address from peers, at the cost of speed.
+- Browser traffic and wallet traffic have their own routing controls.
+- Anything you publish under an identity is public and signed. That is true in every routing mode.
 
-Or configure it in your `epixnet.conf` file:
+Read [Privacy and routing](start/privacy.md) before you rely on any of this.
 
-```
-[global]
-tor = always
-```
+### What can other peers see about me?
 
-For Windows with Tor Browser:
+A peer you connect to directly sees your IP address and which xites you request from it or serve to it. Trackers learn which xites your node announces, and it announces the xites it holds. Anyone can read what you sign and publish, together with the identity that signed it.
 
-```cmd
-python epixnet.py --tor_proxy 127.0.0.1:9150 --tor_controller 127.0.0.1:9151 --tor always
-```
+Peers do not see your keys, your settings or your decrypted private messages. Connections over direct TCP are encrypted, so an observer on the network path does not see the content of the exchange.
 
-> __Tip:__ You can verify your IP address using EpixNet's [Stats](http://127.0.0.1:42222/Stats) page.
+### Do I need Tor Browser or a separate Tor program?
 
-> __Tip:__ If you get connection errors, make sure you have the latest version of Tor installed.
+No. Tor is part of the node. There is nothing extra to install or configure, and the desktop browser already uses the node's Tor client when it routes traffic through Tor.
 
+### What if Tor is blocked on my network?
 
----
+Builds that include bridge support can route Tor through a Snowflake bridge. Turn on **Use Tor bridges** in the Network section of the Config page. Where bridge support is not included, the option is shown as unavailable.
 
+### Is it safe to open a xite I do not know?
 
-#### How to make EpixNet work with Tor under Linux/MacOS?
+A xite page runs in a sandboxed frame. It cannot read other xites, the wrapper, or your keys, and it can only use the node through commands that are checked against its permissions. That removes most of the risk of simply looking at a page.
 
- - Install Tor for your OS following Tor's official guidelines: [Linux](https://www.torproject.org/docs/tor-doc-unix.html.en) [Mac](https://www.torproject.org/docs/tor-doc-osx.html.en).
- - `sudo nano /etc/tor/torrc`
- - Remove the `#` character from lines `ControlPort 9051` and `CookieAuthentication 1` (line ~57)
- - Restart tor
- - Add permission for yourself to read the auth cookie. With Debian Linux, the command is `sudo usermod -a -G debian-tor [yourlinuxuser]`<br>(if you are not on Debian check the file's user group by `ls -al /var/run/tor/control.authcookie`)
- - Logout/Login with your user to apply group changes
+It does not make every xite trustworthy. Do not grant `ADMIN` or `NOSANDBOX` to a xite unless you trust its developer completely, read wallet prompts before you approve them, and treat downloaded files as you would on the ordinary web. See [Sandbox and security](build/sandbox.md).
 
-> __Tip:__ Use the `ls -ld /var/run/tor` command to make sure it has the correct `drwxr-sr-x` permission bits. (fix it with `chmod g+sx /var/run/tor/` if necessary)
+### Can a xite be taken down?
 
-> __Tip:__ You can verify if your Tor setup is running correctly using `echo 'PROTOCOLINFO' | nc 127.0.0.1 9051`
+There is no central place to remove a xite from. It stays available as long as at least one reachable peer keeps a copy. Several things can still happen:
 
-> __Tip:__ It's also possible to use Tor without modifying torrc (or to use older versions of Tor clients), by running `epixnet.py --tor disable --proxy 127.0.0.1:9050 --disable_udp`, but then you will lose ability to talk with other .onion addresses.
+- **The owner** can publish an update that changes or removes content. Peers apply signed updates automatically.
+- **You** can delete a xite from your own node at any time, which also stops you from serving it.
+- **You** can block a xite or mute a user on your node from the Dashboard.
+- **Directories** such as Epix Sites can delist a xite. That affects what the directory shows, not the network.
+- **Nobody keeps it.** If every node that held a xite deletes it or goes offline, it is gone.
 
+### What happens when someone publishes harmful content?
 
----
+Each node operator decides what their node holds. You are never required to keep a xite, and you can delete or block one in the Dashboard. Community xites provide their own tools on top of that: Epix Talk has administrators, moderators and a report queue, Epix Sites has content ratings and reports, and xite owners can set rules for what users may write. A valid signature never means that content is safe or lawful.
 
+## Running a node
 
-#### How to configure Nginx reverse proxy for EpixNet?
+### What happens when I visit a xite?
 
- - Example configuration for `/etc/nginx/sites-enabled/epixnet`:
+1. A `.epix` name is resolved to an address through Epix Chain, with a proof your node verifies.
+2. Your node looks for peers through trackers, the DHT and peer exchange.
+3. It downloads the signed `content.json`, checks the signature, then downloads the files and checks each against its hash.
+4. The page opens in a sandboxed frame, and the files it needs first are fetched first.
+5. Your node keeps the xite and shares it with other peers.
 
-```
-server {
+Optional files, such as videos, are fetched when you open them. See [How EpixNet works](start/how-it-works.md#what-happens-when-you-open-a-xite).
 
-    server_name yourhost.name;
+### Do I host every xite I visit?
 
-    location / {
-        proxy_pass http://127.0.0.1:42222;
-        proxy_set_header Host $host;
-        proxy_http_version 1.1;
-        proxy_read_timeout 1h;  # for long live websocket connetion
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
+Your node keeps the xites you open and serves them to other peers. That sharing is what keeps xites online. You stay in control:
 
-    listen 80;
-}
+- Delete a xite in the Dashboard to stop holding and serving it.
+- Set **File server port** to `0` on the Config page to disable seeding.
+- Turn on **Offline mode** to stop all network transfers.
 
-```
+### How much disk space does it use?
 
- - Create `epixnet.conf` file next to where your EpixNet.sh / epixnet.py file is:
+Each xite may use up to 1000 MB by default, and the wrapper asks before it raises that limit for a larger xite. Optional files are fetched only when you open them unless you choose otherwise. A desktop node also donates up to 2 GiB by default to hold encrypted pieces of other people's private files that it cannot read. You can change or disable that under **Storage** on the Config page.
 
-```
-[global]
-ui_host = yourhost.name
-```
+### Do I need to open a port?
 
- - Replace `yourhost.name` in the configuration files with a domain name that points to your server
- - Start EpixNet
+No. You can browse and publish without an open port. An open port makes your node directly reachable, which helps other peers get content from you.
 
-> __Tip:__ For public proxies enable the Multiuser plugin by renaming `plugins/disabled-Multiuser` to `plugins/Multiuser`
+A desktop node listens on TCP port 26552 by default, or the next free port if that one is taken, and tries to map it on your router with UPnP. If you forward the port by hand, check the node log for the port that was actually selected. Nodes without an open port stay reachable through their Tor onion service or I2P address when those are running.
 
+### Which ports does EpixNet use?
 
-----
+| Port | Protocol | Purpose | Reachable from |
+| --- | --- | --- | --- |
+| 42222 | TCP | Dashboard and local web interface | Your own machine only, by default |
+| 26552 | TCP | File server for peers | The network. Forward this one if you want to be reachable. |
+| 42322 | TCP | Local Tor SOCKS proxy | Your own machine only |
+| 42422 | TCP | Xite HTTP proxy used by EpixNet Browser | Your own machine only |
+| 42522 | TCP | I2P HTTP proxy used by EpixNet Browser | Your own machine only |
+| 1544 | UDP | LAN discovery | Your local network, only when LAN discovery is turned on |
 
+Each of the TCP ports is a starting point: if it is in use, the node takes the next free one. Details are in [Run a node](start/running.md).
 
-#### Is it possible to use a configuration file?
+### Is there a configuration file?
 
-Any command line configuration flag can also be used as a configuration option. Place these options line-by-line into a file called `epixnet.conf` in your top-level epixnet directory (the one with epixnet.py). Example:
+Yes. Settings are stored in `private/config.json` inside your data folder, and the Config page in the web interface edits the same values. A few startup options are set through environment variables such as `EPIX_HEADLESS`, `EPIX_UI_ADDR`, `EPIX_TOR` and `EPIX_DATA_DIR`. Some settings take effect only after a restart, and the Config page tells you when one is needed.
 
-```
-[global]
-data_dir = my-data-dir
-log_dir = my-log-dir
-ui_restrict =
- 1.2.3.4
- 2.3.4.5
-```
+![The node Config page](img/screenshots/dashboard-config.png)
 
-To list possible options, use the `epixnet.py --help` command
+See [Run a node](start/running.md) and [Dashboard and sidebar](start/dashboard.md).
 
----
+### Where is my data stored?
 
+| System | Default data folder |
+| --- | --- |
+| Windows | `%APPDATA%\EpixNet` |
+| macOS | `~/Library/Application Support/EpixNet` |
+| Linux | `~/.local/share/EpixNet`, or `$XDG_DATA_HOME/EpixNet` |
 
-#### How to make Tor work if my ISP or goverment blocks it?
+Inside it, `data` holds the xites and `private` holds your keys and settings. Set `EPIX_DATA_DIR` to use another location, or move the folder from **Storage** on the Config page. See [Data directory](internals/data-directory.md).
 
-EpixNet does not include [Tor pluggable transports](https://www.torproject.org/docs/pluggable-transports.html.en) yet. The easiest way to make Tor work in a censored network is to start the Tor browser, configure it to connect to the Tor network with working pluggable transports, and modify EpixNet's config to use Tor browser's proxy and control port by starting EpixNet with `--tor_controller 127.0.0.1:9151 --tor_proxy 127.0.0.1:9150` or by adding these parameters to `epixnet.conf`.
+### How do I back up my node?
 
-```
-[global]
-tor_controller = 127.0.0.1:9151
-tor_proxy = 127.0.0.1:9150
-```
+Open the Backup page of your node. The wizard creates an archive with the parts you select:
 
+| Component | Contains |
+| --- | --- |
+| Keys & identity | Your master seed and xite private keys. This is what recovers your identity and your ownership of xites. |
+| Node settings | The node configuration |
+| Xites & xite data | All xite content and the list of xites you serve |
+| Onion & I2P address keys | The keys behind your `.onion` and `.b32.i2p` addresses, so a moved node keeps them |
 
----
+You can protect the archive with a password, which encrypts its contents with AES-256. A restore is staged and applied the next time the node starts, and an archive made on one operating system restores on another.
 
+!!! danger "Protect your key backup"
+    Anyone who obtains your keys can sign as you and take over the xites you own. Store backups offline and protect them with a strong password. If you lose your keys and have no backup, nothing can recover them.
 
-#### Can I use the same username on multiple machines?
+The **Save as .zip** action in the xite sidebar is different: it exports one xite's signed public files and never includes keys. See [Dashboard and sidebar](start/dashboard.md).
 
-Yes, simply copy the `data/users.json` file to your new machine.
+### Can I use the same identity on more than one device?
 
+Yes. Your identities are derived from the master seed, so restoring a backup that includes **Keys & identity** on a second device gives it the same identities. Keep in mind that the backup is as sensitive as the keys themselves. For private messages, a name can have several linked devices, and a message sent to the name reaches every active one.
 
----
+### Can I run EpixNet on a server?
 
+Yes. Set `EPIX_HEADLESS=1` to run the node without opening a browser, then use the web interface from a browser yourself. The interface listens on `127.0.0.1` by default. If you bind it to another address with `EPIX_UI_ADDR`, anyone who can reach that address can reach your node's interface, so restrict access at the network level and enable the UiPassword plugin, which adds a login page and is off by default. See [Run a node](start/running.md).
 
-#### How to create a "fancy" (non .bit) site address?
+### Can I run more than one node on one machine?
 
-Use [EpixVanity](https://github.com/EpixZone/EpixVanity) to generate one. Once you get your keys, create `data/epix1dash...543mv7xt9zlydsj9t` directory. Put some files there.
+Yes, for standalone nodes. Give each instance its own `EPIX_DATA_DIR` and start it headless or with the system browser. Ports are chosen automatically when the defaults are taken. The managed EpixNet Browser keeps a single active profile.
 
-Then navigate to [http://127.0.0.1:42222/epix1dash...543mv7xt9zlydsj9t/](http://127.0.0.1:42222/epix1dash...543mv7xt9zlydsj9t/). Drag the `EpixLogo` button to the left and use the sidebar to sign your site.
+### Can I use EpixNet without Internet access?
 
----
+Xites you have already downloaded open from your disk with no connection at all. To exchange content with nearby devices, turn on LAN discovery or the Reticulum mesh in the **Offline & Mesh** section of the Config page. Both are off by default. Name resolution needs the chain, so use `epix1` addresses when you are offline. See [Privacy and routing](start/privacy.md).
 
-#### How to create a custom site address?
+### How do I see how much bandwidth it uses?
 
-EpixNet site addresses are automatically generated when you create a new site. Each address is a unique bech32-encoded identifier with the "epix" prefix (e.g., `epix1...`).
+The Dashboard's Stats view shows bandwidth, request and peer charts, including a per-xite breakdown and a map of connected peers.
 
-To create a site:
+### How do I check which version I am running?
 
-1. Visit the EpixNet dashboard at `http://127.0.0.1:42222/`
-2. Click **⋮** > **"Create new, empty site"**
-3. You'll be redirected to your new site that only you can modify
-4. Find your site files in the `data/[your_site_address]` directory
-5. Edit your content, then drag the "0" button left and click **"Sign and publish"**
+Open the Dashboard menu (the ☰ button). The bottom of the panel shows the version, for example `EpixNet v0.6.8`. From a terminal, `epix-server --version` prints the same. The `serverInfo` API command also reports `rev`, the short Git commit the build was made from, which you can match against the commits in the [EpixNet repository](https://github.com/EpixZone/EpixNet). See [Check the version](start/running.md#version).
 
-Your site address is derived from your public key and cannot be customized, but you can use Epix Name Service to register a .epix domain name that points to your site.
+## Names and identity
 
+### What is a xite address?
 
----
+It is the public identifier of a xite: a bech32 string with the prefix `epix`, derived from the xite's public key. Only the holder of the matching private key can publish under it. See [Addresses and keys](start/how-it-works.md#addresses-and-keys).
 
+### Can I choose a custom address?
 
-#### How can I register a .epix domain?
+Addresses are derived from keys, so you cannot pick one freely. You can search for a key whose address starts with a chosen prefix, and addresses such as `epix1talk...` are of this kind. The [EpixVanity](https://github.com/EpixZone/EpixVanity) repository contains a vanity address generator. For a readable address that anyone can type, register a `.epix` name instead.
 
-You can register & manage .epix domains using [Epix Name Service](http://127.0.0.1:42222/epix1xauthduuyn63k6kj54jzgp4l8nnjlhrsyaku8c/).
+### How do I get a .epix name?
 
-After the registration is done you have to add a xID idenity to the Epix Name Service.
+Open the [xID xite](start/apps.md#xid), connect a wallet, search for a name and register it. The fee depends on the length of the name and is shown before you confirm. Afterwards you can point the name at a xite and link identities to it. See [xID names and identity](start/xid.md).
 
----
+### Does EpixNet use a blockchain?
 
+Yes, for a few specific things. Epix Chain stores `.epix` names, their records and the identities linked to them, and your node verifies what it reads from the chain with cryptographic proofs. Xites can also connect a wallet to work with smart contracts.
 
-#### What is an EpixNet site address?
+Xite content is not stored on the chain. Files move between peers, and reading or posting needs no transaction. See [Epix Chain for xites](web3/index.md).
 
-EpixNet site addresses are unique identifiers generated using secp256k1 elliptic curve cryptography and encoded in bech32 format with the "epix" prefix (e.g., `epix1...`). Each site address is derived from a public key, and only the holder of the corresponding private key can modify the site's content.
+### What is the difference between a xite address and an xID?
 
-> __Tip:__ Keep your private key secure! You need it to sign and publish updates to your site. Store it safely and never share it with anyone.
+A xite address identifies a xite and is free to create. An xID is a `.epix` name registered on chain. A name can point to a xite address, and it can have identity addresses linked to it, which is how your posts show `alice.epix` instead of a long key.
 
+## Building xites
 
----
+### How do I create a xite?
 
+Click **Create new xite** in the Dashboard, or run `epix-server siteCreate` on the command line. Either way you get a new address and a private key held by your node. Edit the files, sign, and publish. The [quick start](build/quickstart.md) walks through every step.
 
-#### What happens when someone hosts malicious content?
+### Are xites limited to static HTML and CSS?
 
-**Isolation & Responsibility**
+No. A xite page is delivered as static files, but it can use the EpixFrame API to query a SQL database that the node builds from the xite's JSON files, let users sign and publish their own content, send private messages over channels, and stream media. It can also connect a wallet with EpixKit to use smart contracts on Epix Chain. What a xite cannot have is server-side code. See [Anatomy of a xite](build/anatomy.md).
 
-EpixNet sites are fully sandboxed, they operate independently and have the same privileges and limitations as any other website on the Internet. Each host is in complete control of what they publish and is legally responsible for their own content.
+### Can I use React or another framework?
 
-If malicious or illegal material appears, it affects only that host, not the wider network. Hosts (or the community) can immediately stop serving or block that content at any time.
+Yes. A xite is whatever static files your build produces. See [React and bundlers](libraries/react.md).
 
-**Community-Driven Safety**
+### How do updates reach visitors?
 
-A feature discussed in the community is a community driven AI auditing network that:
+When you sign and publish, your node pushes the new manifest to the peers it is connected to. They verify it, fetch the changed files and pass it on. Nodes that were not connected learn about the update from update hints, which they poll every 30 seconds, or at the next periodic resync, which runs every 5 minutes by default. Delivery depends on which peers are reachable, so there is no fixed time by which everyone has the update. See [Sign and publish](build/publishing.md).
 
-- Continuously scans public EpixNet sites for signs of malware, exploits, or illegal content
-- Assigns trust scores and safety ratings to sites
-- Feeds data into an optional blacklist plugin available for all EpixNet clients and search engines
-- Enables the EpixNet client to warn users before visiting unverified or unsafe sites (similar to a browser’s SSL warning)
-- Preserves user freedom: Users always retain the choice to proceed if they choose
+### What happens if I lose the private key of my xite?
 
-**The Philosophy**
+If your node still has its master seed, you may not have lost it. Owner keys are derived from the seed, and a xite created by a current node records the derivation index in its signed `content.json`. Turn on **This is my xite** in the xite sidebar to attempt recovery. A `users.json` backup made after the xite was created also contains the key.
 
-EpixNet doesn't censor: it isolates threats, promotes transparency, and empowers users to make informed decisions.
+If neither the seed nor a backup is available, the xite can no longer be updated. Existing copies keep working, but nobody can sign a new version. See [Sign and publish](build/publishing.md).
 
-> "Tools are intent neutral. This is why we need to protect ourselves from illegal usage of our tools." — Kane Nexus
+### How do I discard changes I have not signed?
 
----
+Open the file browser for your xite at `/list/<address>/` on your node, choose **Revert** beside the file, and confirm. This restores the version recorded in the signed `content.json`. It works for files in xites you own, and it cannot undo changes that are already signed.
 
+### Can an AI coding agent build a xite for me?
 
-#### Is it possible to install EpixNet to a remote machine?
+Yes, and the docs include material written for that purpose. See [AI-assisted development](ai/index.md) for the workflow and a ready-made context file for your project.
 
-Yes, you have to enable the UiPassword plugin by renaming the __plugins/disabled-UiPassword__ directory to __plugins/UiPassword__,
-then start EpixNet on the remote machine using <br>`epixnet.py --ui_ip "*" --ui_password anypassword`.
-This will bind the EpixNet UI webserver to all interfaces, but to keep it secure you can only access it by entering the given password.
+### Where do I report a bug or a security issue?
 
-> __Tip:__ You can also restrict the interface based on ip address by using `--ui_restrict ip1 ip2`.
-
-> __Tip:__ You can specify the password in the config file by creating a `epixnet.conf` file and adding `[global]` and `ui_password = anypassword` lines to it.
-
-
----
-
-
-#### Is there any way to track the bandwidth EpixNet is using?
-
-The sent/received bytes are displayed at EpixNet's sidebar.<br>(open it by dragging the topright `EpixLogo` button to left)
-
-> __Tip:__ Per connection statistics page: [http://127.0.0.1:42222/Stats](http://127.0.0.1:42222/Stats)
-
-
----
-
-
-#### What happens if two people use the same keys to modify a site?
-
-Every content.json file is timestamped, the clients always accept the newest one with a valid signature.
-
-
----
-
-
-#### Does EpixNet use the Epix blockchain?
-
-EpixNet will use the Epix blockchain for any data that needs to be imutable, such as p2p transactions. EpixNet uses its own cryptographic system based on the secp256k1 elliptic curve for site addresses and content signing/verification. EpixNet addresses are unique to EpixNet and are encoded in bech32 format with the "epix" prefix.
-
-Optionally, Epix blockchain can be used for domain registrations (.epix domains) by using the Epix Name Service, however clients do not download the blockchain. Blockchain metadata is instead passed over the EpixNet network.
-
-
----
-
-
-#### Does EpixNet only support HTML, CSS websites?
-
-EpixNet is built for dynamic, real-time updated websites, but you can serve any kind of files using it, such as (VCS repositories, your own thin-client, database, etc.
-
-
----
-
-
-#### How can I create a new EpixNet site?
-
-[Follow these instructions.](../using_epixnet/create_new_site/)
-
----
-
-
-#### What happens when I access a site?
-
-- When you want to open a new site it asks for visitor's IP addresses from BitTorrent trackers.
-- Initially, a file named __content.json__ is downloaded, which holds all other filenames,
-  __hashes__ and the site owner's cryptographic signature.
-- The downloaded content.json file is __verified__ using the site's __address__ and the site owner's __signature__ from the file.
-- Other files (html, css, js...) are then __downloaded__ and verified using their size and SHA512 hash from content.json.
-- Each visited site then becomes __also served by you__.
-- If the site owner (who has the private key for the site address) __modifies__ the site, then he/she signs
-  the new content.json and __publishes it to peers__. After the peers have verified the file's
-  integrity (using the signature), they __download the modified files__ and serve the new content to other peers.
-
-More info:
- [EpixNet sample sites](../using_epixnet/sample_sites/)
+See [Contribute to EpixNet](contributing/index.md) for how to report bugs and security issues.

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  <script>window.__docs_base = {{ base_url | tojson }};</script>
+  <script>{% include "partials/xite-bridge.js" %}</script>
+{% endblock %}

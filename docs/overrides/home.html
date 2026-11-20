@@ -1,0 +1,33 @@
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+  <section class="epix-hero">
+    <div class="md-grid epix-hero__inner">
+      <div class="epix-hero__copy">
+        <span class="epix-hero__eyebrow">EpixNet documentation</span>
+        <h1>The web, hosted by <span>the people who use it</span></h1>
+        <p>
+          EpixNet is a peer-to-peer platform for signed, peer-replicated websites called xites.
+          Run a node, publish a xite from a folder of files, add a SQL database, user content,
+          wallets and on-chain identity, and build it all with the AI coding agent you already use.
+        </p>
+        <div class="epix-hero__actions md-typeset">
+          <a href="{{ 'start/install.html' | url }}" class="md-button md-button--primary">Install EpixNet</a>
+          <a href="{{ 'build/quickstart.html' | url }}" class="md-button">Build your first xite</a>
+        </div>
+      </div>
+      <div class="epix-hero__art">
+        <img src="{{ 'img/screenshots/dashboard.png' | url }}" alt="The EpixNet dashboard listing xites and live network activity" width="1440" height="900">
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block container %}
+  <div class="md-content epix-home" data-md-component="content">
+    <article class="md-content__inner md-typeset">
+      {{ page.content }}
+    </article>
+  </div>
+{% endblock %}

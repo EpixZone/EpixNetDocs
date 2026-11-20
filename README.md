@@ -1,76 +1,47 @@
-# EpixNet Documentation
+# EpixNet documentation
 
-This repository contains the official documentation for **EpixNet**, a decentralized peer-to-peer web platform that enables users to create, host, and access websites without relying on traditional centralized servers.
+Source for the official [EpixNet](https://github.com/EpixZone/EpixNet) documentation: running a node, building and publishing xites, the EpixFrame API, the libraries (EpixFrame, EpixKit and friends), Epix Chain integration, and developing xites with AI coding agents.
 
-**Documentation available at:** https://epixnet.io/docs
+The docs are published as a xite on EpixNet itself, at `epix1readmehqfdxy4pzx7u72wwaerc4psx0gt6fety`. The same build is plain static HTML, so it can also be hosted on any web server.
 
-## About EpixNet
+## Repository layout
 
-EpixNet is a Python-based implementation of a decentralized web platform built on BitTorrent technology and cryptographic principles. It creates a censorship-resistant internet where content is distributed across a network of peers.
+| Path | Contents |
+| --- | --- |
+| `mkdocs.yml` | Site configuration and navigation |
+| `docs/en/` | The pages (Markdown), images and assets |
+| `docs/overrides/` | Theme overrides, including the EpixNet wrapper bridge |
+| `scripts/build-xite.sh` | Build and copy the site into a xite folder |
 
-For more information about the EpixNet project, visit the [main repository](https://github.com/EpixZone/EpixNet).
+## Preview locally
 
-## Building the Documentation
+Requires Python 3.9 or newer.
 
-### Prerequisites
-
-Install the following from pip:
-
-* mkdocs
-* mkdocs-material
-* pymdown-extensions
-
-### Building Locally
-
-Run `mkdocs serve` to host a local version of the docs:
-
-```bash
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
 mkdocs serve
 ```
 
-Or run `mkdocs build` to output a static version:
+Open <http://127.0.0.1:8000/>. Run `mkdocs build --strict` before you open a pull request: it fails on broken internal links and anchors.
 
-```bash
-mkdocs build
+## Publish to the docs xite
+
+```sh
+scripts/build-xite.sh "<data folder>/data/epix1readmehqfdxy4pzx7u72wwaerc4psx0gt6fety"
 ```
 
-## French doc
+Then open the xite in your node, review it, and choose **Sign & Publish** in the sidebar. Only a holder of the xite's owner key can publish. The script never touches `content.json`.
 
-Serve:
+## Contributing
 
-`mkdocs serve -f mkdocs-fr.yml`
+Read [Improve these docs](docs/en/contributing/docs.md) for the writing rules. The short version:
 
-Build:
-`mkdocs build -f mkdocs-fr.yml -d site-fr`
+- Describe the current Rust node, and verify every command, parameter and default against the source before writing it down.
+- Write "xite", not "site", outside literal command names.
+- Embed nothing from other hosts. The xite build must work offline and over Tor.
 
-## Create a new translation
+## License
 
-You will need to duplicate the `mkdocs.yml` file and rename it to add the language code according to ISO 639-1 (https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) it is used for.
-Example : `mkdocs-fr.yml`
-
-Modify the default lang for lunr search :
-```
-plugins:
-  - search:
-      lang: ['fr']
-```
-
-Modify the language theme to fit the one you translate it for.
-Example :
-```
-theme:
-  language: 'de'
-```
-
-Translate the nav is willing language.
-
-Now in `docs` duplicate the folder `en/` and rename it with appropriate language code.
-Example : `fr/`
-
-Now you can translate the documentation. Thank you.
-
-## Generate all the doc files
-
-```
-mkdocs build -f mkdocs.yml & mkdocs build -f mkdocs-fr.yml
-```
+[MIT](LICENSE)

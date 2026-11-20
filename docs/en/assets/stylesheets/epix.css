@@ -1,0 +1,742 @@
+/* ==========================================================================
+   EpixNet Docs theme
+   Layered on MkDocs Material. Colors follow the Epix UI kit design tokens
+   (github.com/EpixZone/assets, ui-kit/epix-tokens.css).
+   ========================================================================== */
+
+:root {
+  --epix-cyan: #69E9F5;
+  --epix-teal: #31BDC6;
+  --epix-indigo: #5954CD;
+  --epix-purple: #8A4BDB;
+  --epix-neutral-0: #FEFEFE;
+  --epix-neutral-1: #F6F6F9;
+  --epix-neutral-2: #F2F2F6;
+  --epix-neutral-3: #DCDCE3;
+  --epix-neutral-4: #ABABB5;
+  --epix-neutral-5: #72747B;
+  --epix-neutral-6: #404045;
+  --epix-neutral-7: #2E2E32;
+  --epix-neutral-8: #242428;
+  --epix-neutral-9: #1D1D1F;
+  --epix-neutral-10: #151517;
+  --epix-neutral-11: #09090A;
+  --epix-gradient: linear-gradient(100deg, #69E9F5 0%, #31BDC6 28%, #5954CD 68%, #8A4BDB 100%);
+
+  --md-text-font: "Inter";
+  --md-code-font: "IBM Plex Mono";
+
+  --epix-radius: 10px;
+  --epix-radius-sm: 6px;
+}
+
+/* ---------- Light scheme ---------- */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #FEFEFE;
+  --md-primary-fg-color--light: #F6F6F9;
+  --md-primary-fg-color--dark: #F2F2F6;
+  --md-primary-bg-color: #1D1D1F;
+  --md-primary-bg-color--light: #72747B;
+
+  --md-accent-fg-color: #5954CD;
+  --md-accent-fg-color--transparent: rgba(89, 84, 205, 0.1);
+  --md-accent-bg-color: #FEFEFE;
+
+  --md-default-bg-color: #FEFEFE;
+  --md-default-fg-color: #1D1D1F;
+  --md-default-fg-color--light: #55565C;
+  --md-default-fg-color--lighter: #9A9BA3;
+  --md-default-fg-color--lightest: #E4E4EA;
+
+  --md-typeset-color: #242428;
+  --md-typeset-a-color: #6A35C4;
+
+  --md-code-bg-color: #F6F6F9;
+  --md-code-fg-color: #2E2E32;
+  --md-code-hl-color: rgba(138, 75, 219, 0.14);
+
+  --md-footer-bg-color: #151517;
+  --md-footer-bg-color--dark: #09090A;
+
+  --epix-border: #DCDCE3;
+  --epix-surface: #FEFEFE;
+  --epix-surface-2: #F6F6F9;
+  --epix-heading: #151517;
+  --epix-shadow: 0 1px 2px rgba(21, 21, 23, 0.06), 0 8px 24px rgba(21, 21, 23, 0.06);
+}
+
+/* ---------- Dark scheme ---------- */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #0D0D0F;
+  --md-primary-fg-color--light: #1D1D1F;
+  --md-primary-fg-color--dark: #09090A;
+  --md-primary-bg-color: #F6F6F9;
+  --md-primary-bg-color--light: #ABABB5;
+
+  --md-accent-fg-color: #69E9F5;
+  --md-accent-fg-color--transparent: rgba(105, 233, 245, 0.1);
+  --md-accent-bg-color: #09090A;
+
+  --md-default-bg-color: #151517;
+  --md-default-fg-color: #F2F2F6;
+  --md-default-fg-color--light: #B9B9C2;
+  --md-default-fg-color--lighter: #72747B;
+  --md-default-fg-color--lightest: #2E2E32;
+
+  --md-typeset-color: #DCDCE3;
+  --md-typeset-a-color: #5FDCE8;
+
+  --md-code-bg-color: #1D1D1F;
+  --md-code-fg-color: #DCDCE3;
+  --md-code-hl-color: rgba(105, 233, 245, 0.14);
+
+  --md-code-hl-keyword-color: #B18CF0;
+  --md-code-hl-function-color: #69E9F5;
+  --md-code-hl-string-color: #7FDCA8;
+  --md-code-hl-number-color: #F0B622;
+  --md-code-hl-constant-color: #8FA2FF;
+  --md-code-hl-special-color: #F58BA0;
+  --md-code-hl-comment-color: #8A8B93;
+
+  --md-typeset-table-color: rgba(246, 246, 249, 0.12);
+  --md-typeset-table-color--light: rgba(246, 246, 249, 0.035);
+
+  --md-admonition-bg-color: #1D1D1F;
+
+  --md-footer-bg-color: #0D0D0F;
+  --md-footer-bg-color--dark: #09090A;
+
+  --epix-border: #2E2E32;
+  --epix-surface: #1D1D1F;
+  --epix-surface-2: #1A1A1C;
+  --epix-heading: #FEFEFE;
+  --epix-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Header, tabs, search ---------- */
+.md-header {
+  background-color: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+  border-bottom: 1px solid var(--epix-border);
+  box-shadow: none;
+}
+
+.md-header::before {
+  content: "";
+  display: block;
+  height: 3px;
+  background: var(--epix-gradient);
+}
+
+.md-header--shadow {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.md-header__title {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+/* Inside the EpixNet wrapper a round menu button floats over the top right
+   corner. Keep header controls clear of it. The class is set by the bridge
+   script in overrides/partials/xite-bridge.js. */
+.in-epixnet .md-header__inner {
+  padding-right: 3.4rem;
+}
+
+.md-source__repository {
+  font-weight: 600;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.md-tabs {
+  background-color: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+  border-bottom: 1px solid var(--epix-border);
+}
+
+.md-tabs__link {
+  font-weight: 500;
+  opacity: 0.72;
+}
+
+.md-tabs__item--active .md-tabs__link,
+.md-tabs__link:hover {
+  opacity: 1;
+}
+
+.md-tabs__item--active {
+  box-shadow: inset 0 -2px 0 var(--md-accent-fg-color);
+}
+
+.md-search__form {
+  background-color: var(--epix-surface-2);
+  border: 1px solid var(--epix-border);
+  border-radius: 8px;
+}
+
+.md-search__form:hover {
+  background-color: var(--epix-surface-2);
+  border-color: var(--md-accent-fg-color);
+}
+
+.md-search__input,
+.md-search__input::placeholder,
+.md-search__icon {
+  color: var(--md-default-fg-color--light);
+}
+
+[data-md-toggle="search"]:checked ~ .md-header .md-search__form {
+  border-radius: 8px 8px 0 0;
+  background-color: var(--md-default-bg-color);
+}
+
+[data-md-toggle="search"]:checked ~ .md-header .md-search__input {
+  color: var(--md-default-fg-color);
+}
+
+.md-search__output {
+  border-radius: 0 0 8px 8px;
+}
+
+/* ---------- Typography ---------- */
+.md-typeset {
+  font-size: 0.8rem;
+  line-height: 1.7;
+  font-feature-settings: "cv11", "ss01", "calt";
+}
+
+.md-typeset h1 {
+  color: var(--epix-heading);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.8em;
+}
+
+.md-typeset h2 {
+  color: var(--epix-heading);
+  font-weight: 700;
+  letter-spacing: -0.018em;
+  margin-top: 2.2em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid var(--epix-border);
+}
+
+.md-typeset h3 {
+  color: var(--epix-heading);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin-top: 1.9em;
+}
+
+.md-typeset h4 {
+  color: var(--epix-heading);
+  font-weight: 650;
+}
+
+/* Lede: the first paragraph after the page title reads as an introduction. */
+.md-typeset h1 + p {
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 1.4em;
+}
+
+.md-typeset a {
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.md-typeset a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.md-typeset a:focus-visible,
+.md-nav__link:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ---------- Code ---------- */
+.md-typeset code {
+  border-radius: 5px;
+  font-size: 0.86em;
+  padding: 0.12em 0.4em;
+  border: 1px solid var(--epix-border);
+}
+
+.md-typeset pre > code {
+  border: 1px solid var(--epix-border);
+  border-radius: var(--epix-radius);
+  font-size: 0.8em;
+  line-height: 1.6;
+  padding: 0.9em 1.1em;
+}
+
+.md-typeset .highlight span.filename {
+  border: 1px solid var(--epix-border);
+  border-bottom: 0;
+  border-radius: var(--epix-radius) var(--epix-radius) 0 0;
+  background: var(--epix-surface-2);
+  font-family: var(--md-code-font-family);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--md-default-fg-color--light);
+}
+
+.md-typeset .highlight span.filename + pre > code {
+  border-radius: 0 0 var(--epix-radius) var(--epix-radius);
+}
+
+.md-typeset h1 code,
+.md-typeset h2 code,
+.md-typeset h3 code,
+.md-typeset h4 code,
+.md-typeset a code {
+  border: 0;
+}
+
+/* ---------- Tables ---------- */
+.md-typeset table:not([class]) {
+  border: 1px solid var(--epix-border);
+  border-radius: var(--epix-radius);
+  box-shadow: none;
+  font-size: 0.72rem;
+  overflow: hidden;
+}
+
+.md-typeset table:not([class]) th {
+  background: var(--epix-surface-2);
+  color: var(--epix-heading);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.md-typeset table:not([class]) td,
+.md-typeset table:not([class]) th {
+  padding: 0.7em 1em;
+}
+
+.md-typeset table:not([class]) td code {
+  white-space: nowrap;
+}
+
+/* ---------- Admonitions ---------- */
+.md-typeset .admonition,
+.md-typeset details {
+  border: 1px solid var(--epix-border);
+  border-left-width: 3px;
+  border-radius: var(--epix-radius-sm) var(--epix-radius) var(--epix-radius) var(--epix-radius-sm);
+  box-shadow: none;
+  font-size: 0.76rem;
+}
+
+.md-typeset .admonition-title,
+.md-typeset summary {
+  font-weight: 650;
+}
+
+/* ---------- Images and screenshots ---------- */
+.md-typeset img {
+  border-radius: var(--epix-radius);
+}
+
+.md-typeset p > img[src*="screenshots/"],
+.md-typeset figure img[src*="screenshots/"] {
+  border: 1px solid var(--epix-border);
+  box-shadow: var(--epix-shadow);
+  display: block;
+  margin: 1.4em auto;
+  max-width: 100%;
+  height: auto;
+}
+
+.md-typeset figure {
+  margin: 1.6em auto;
+}
+
+.md-typeset figcaption {
+  color: var(--md-default-fg-color--light);
+  font-size: 0.72rem;
+  font-style: normal;
+  margin-top: 0.6em;
+}
+
+.md-typeset .diagram {
+  margin: 1.8em auto;
+  text-align: center;
+}
+
+.md-typeset .diagram svg,
+.md-typeset .diagram img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0;
+}
+
+/* ---------- Cards and buttons ---------- */
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid > .card {
+  border: 1px solid var(--epix-border);
+  border-radius: var(--epix-radius);
+  background: var(--epix-surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.md-typeset .grid.cards > ul > li:hover,
+.md-typeset .grid > .card:hover {
+  border-color: var(--md-accent-fg-color);
+  box-shadow: var(--epix-shadow);
+  transform: translateY(-1px);
+}
+
+.md-typeset .grid.cards > ul > li > p:first-child,
+.md-typeset .grid.cards > ul > li > :first-child {
+  color: var(--epix-heading);
+}
+
+.md-typeset .grid.cards .twemoji,
+.md-typeset .grid.cards .lg {
+  color: var(--md-accent-fg-color);
+}
+
+.md-typeset .md-button {
+  border-radius: 8px;
+  border: 1px solid var(--epix-border);
+  background: var(--epix-surface);
+  color: var(--epix-heading);
+  font-weight: 600;
+  padding: 0.55em 1.3em;
+}
+
+.md-typeset .md-button:hover,
+.md-typeset .md-button:focus {
+  background: var(--epix-surface-2);
+  border-color: var(--md-accent-fg-color);
+  color: var(--epix-heading);
+}
+
+.md-typeset .md-button--primary {
+  background: var(--epix-gradient);
+  border-color: transparent;
+  color: #09090A;
+}
+
+.md-typeset .md-button--primary:hover {
+  filter: brightness(1.08);
+  color: #09090A;
+  border-color: transparent;
+  text-decoration: none;
+}
+
+.md-typeset .md-button:hover {
+  text-decoration: none;
+}
+
+/* ---------- Navigation ---------- */
+.md-nav {
+  font-size: 0.72rem;
+}
+
+.md-nav__title {
+  font-weight: 650;
+}
+
+.md-nav__item--section > .md-nav__link {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  color: var(--md-default-fg-color--light);
+}
+
+.md-nav__link--active,
+.md-nav__item .md-nav__link--active {
+  color: var(--md-typeset-a-color);
+  font-weight: 600;
+}
+
+.md-nav__link:hover {
+  color: var(--md-accent-fg-color);
+}
+
+.md-path {
+  font-size: 0.68rem;
+}
+
+/* ---------- Footer ---------- */
+.md-footer {
+  border-top: 1px solid var(--epix-border);
+}
+
+.md-footer__title {
+  font-weight: 600;
+}
+
+/* ---------- Tabs in content ---------- */
+.md-typeset .tabbed-labels > label {
+  font-weight: 600;
+}
+
+.md-typeset .tabbed-set {
+  border: 1px solid var(--epix-border);
+  border-radius: var(--epix-radius);
+  padding: 0 1em 0.4em;
+}
+
+/* ---------- Keyboard keys ---------- */
+.md-typeset kbd {
+  border-radius: 5px;
+}
+
+/* ==========================================================================
+   Home page
+   ========================================================================== */
+.epix-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--epix-border);
+  background:
+    radial-gradient(60rem 26rem at 85% -10%, rgba(138, 75, 219, 0.22), transparent 60%),
+    radial-gradient(50rem 24rem at 5% 0%, rgba(49, 189, 198, 0.2), transparent 60%),
+    var(--md-default-bg-color);
+}
+
+.epix-hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 2.4rem;
+  align-items: center;
+  padding: 3.2rem 0.8rem 3.4rem;
+}
+
+.epix-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--md-typeset-a-color);
+  border: 1px solid var(--epix-border);
+  border-radius: 999px;
+  padding: 0.35em 0.9em;
+  background: var(--epix-surface);
+}
+
+.epix-hero h1 {
+  font-size: clamp(1.9rem, 4.2vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  margin: 0.7em 0 0.45em;
+  color: var(--epix-heading);
+}
+
+.epix-hero h1 span {
+  background: var(--epix-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.epix-hero p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--md-default-fg-color--light);
+  max-width: 34rem;
+  margin: 0 0 1.5em;
+}
+
+.epix-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.epix-hero__actions .md-button {
+  margin: 0;
+}
+
+.epix-hero__art img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--epix-border);
+  box-shadow: var(--epix-shadow);
+  display: block;
+}
+
+.epix-home .md-content__inner {
+  padding-top: 1.2rem;
+}
+
+.epix-home .md-typeset h2 {
+  border-bottom: 0;
+  font-size: 1.35rem;
+  margin-top: 2.2em;
+  margin-bottom: 0.2em;
+}
+
+.epix-home .md-typeset h2 + p {
+  color: var(--md-default-fg-color--light);
+  margin-top: 0.2em;
+}
+
+.epix-home .md-typeset h1 {
+  display: none;
+}
+
+.epix-home .md-typeset h1 + h2 {
+  margin-top: 0.4em;
+}
+
+/* Fixed column counts so a row never ends with a single orphan card. */
+.md-typeset .grid.cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.md-typeset .grid.cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media screen and (max-width: 76.1875em) {
+  .md-typeset .grid.cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media screen and (max-width: 59.9375em) {
+  .md-typeset .grid.cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media screen and (max-width: 37.5em) {
+  .md-typeset .grid.cols-4,
+  .md-typeset .grid.cols-3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media screen and (max-width: 59.9375em) {
+  .epix-hero__inner {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 2.2rem 0.8rem 2.4rem;
+  }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  .md-header::before,
+  .epix-hero__art {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Diagrams (inline SVG from img/diagrams/, wrapped in <div class="epix-diagram">)
+   ========================================================================== */
+.epix-diagram {
+  margin: 1.8em 0;
+  padding: 1rem;
+  border: 1px solid var(--epix-border);
+  border-radius: var(--epix-radius);
+  background: var(--epix-surface-2);
+  overflow-x: auto;
+}
+
+.epix-diagram svg {
+  display: block;
+  width: 100%;
+  min-width: 600px;
+  max-width: 720px;
+  height: auto;
+  margin: 0 auto;
+  font-family: var(--md-text-font-family);
+}
+
+.epix-diagram .d-box {
+  fill: var(--epix-surface);
+  stroke: var(--epix-border);
+  stroke-width: 1.2;
+}
+
+.epix-diagram .d-box-soft {
+  fill: none;
+  stroke: var(--epix-border);
+  stroke-width: 1.2;
+  stroke-dasharray: 5 5;
+}
+
+.epix-diagram .d-box-accent {
+  fill: var(--md-accent-fg-color--transparent);
+  stroke: var(--md-accent-fg-color);
+  stroke-width: 1.4;
+}
+
+.epix-diagram .d-title {
+  fill: var(--epix-heading);
+  font-size: 14.5px;
+  font-weight: 650;
+}
+
+.epix-diagram .d-text {
+  fill: var(--md-typeset-color);
+  font-size: 13px;
+}
+
+.epix-diagram .d-muted {
+  fill: var(--md-default-fg-color--light);
+  font-size: 12px;
+}
+
+.epix-diagram .d-label {
+  fill: var(--md-default-fg-color--light);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.epix-diagram .d-line {
+  fill: none;
+  stroke: var(--md-default-fg-color--lighter);
+  stroke-width: 1.6;
+}
+
+.epix-diagram .d-head,
+.epix-diagram .d-dot {
+  fill: var(--md-default-fg-color--lighter);
+}
+
+.epix-diagram .d-num {
+  fill: var(--md-accent-fg-color);
+}
+
+.epix-diagram .d-numtext {
+  fill: var(--md-accent-bg-color);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.md-typeset .epix-diagram-figure {
+  margin: 1.8em 0;
+  max-width: 100%;
+}
+
+.md-typeset .epix-diagram-figure .epix-diagram {
+  margin: 0;
+}
+
+.md-typeset .epix-diagram-figure figcaption {
+  max-width: none;
+  text-align: center;
+}
