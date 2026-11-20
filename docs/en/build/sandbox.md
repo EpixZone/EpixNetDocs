@@ -52,7 +52,8 @@ Details worth knowing about the separate content origins:
 | Reading another xite's files | Blocked | `corsPermission`, then `fileGet("cors-<address>/<path>")` |
 | Opening your own WebSocket to the node | Refused | Send commands through the wrapper |
 | Reading `parent` or `top` | Blocked | Use the `wrapper*` commands |
-| `<script>`, `<link rel="stylesheet">`, `<img>`, audio, video, fonts, ES modules from your own xite | Work | Nothing to change |
+| Classic `<script>`, `<link rel="stylesheet">`, `<img>`, audio, video from your own xite | Work | Nothing to change |
+| Fonts and ES modules (`<script type="module">`, `import`) from your own xite | Work over HTTPS and loopback; refused over a plain-HTTP LAN address | Ship classic scripts; treat web fonts as optional (see [Fetching your own files](#fetching-your-own-files)) |
 
 ### Storage
 
@@ -91,7 +92,14 @@ Apply the same guard to `navigator.serviceWorker` and `indexedDB`. Third-party l
 
 ### Fetching your own files
 
-Scripts, stylesheets, images, media, fonts and ES modules load from your xite without any change, in every mode. The restriction is on requests whose bytes your script can read: `fetch` and `XMLHttpRequest`.
+Classic scripts, stylesheets, images and media load from your xite without any change, in every mode. The restriction is on requests whose bytes your script can read: `fetch` and `XMLHttpRequest`.
+
+Fonts and ES modules sit in between. The browser fetches them in CORS mode, so in an opaque origin they arrive with `Origin: null`, like a `fetch`. The node lets them through without a key only when the browser also sends fetch metadata saying the request is a font or a script (`Sec-Fetch-Dest`). Browsers send that metadata to HTTPS origins and to loopback addresses, but not to a plain-HTTP LAN address such as `http://192.168.1.20:42222/`. There, fonts and module scripts are refused, and a page built from `<script type="module">` stays blank. The node cannot safely relax this: without the metadata it cannot tell a font or script load from another xite reading your files.
+
+!!! warning "Build for plain-HTTP LAN access"
+    - Ship classic scripts (`<script src>` or `<script defer src>`), not `type="module"`. Bundlers can emit a single classic IIFE bundle; see [Frameworks and bundlers](../libraries/react.md).
+    - Give every web font a system fallback in `font-family`, so the page reads well when the font is refused. If the font matters, load it with the key from `wrapperGetAjaxKey` through the `FontFace` API.
+    - Over HTTPS gateways and on the visitor's own node, both work without changes.
 
 In an opaque origin those requests carry `Origin: null`, and the node cannot tell your frame from any other opaque document. It therefore answers only when the request carries the xite's `ajax_key`, a second per-xite secret that the wrapper hands to its own page on request.
 

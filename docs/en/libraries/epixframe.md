@@ -495,7 +495,7 @@ var res = await fetch("data/catalog.json?ajax_key=" + encodeURIComponent(ajaxKey
     }
     ```
 
-Scripts, styles, images, fonts and ES modules that your HTML references load without the key. See [The wrapper sandbox](../build/sandbox.md).
+Classic scripts, styles and images that your HTML references load without the key. Fonts and ES modules do too over HTTPS and loopback, but not over a plain-HTTP LAN address. See [Fetching your own files](../build/sandbox.md#fetching-your-own-files).
 
 ## Properties and logging
 

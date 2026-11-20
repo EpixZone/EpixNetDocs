@@ -56,11 +56,36 @@ A xite is not always served from the root of a host. In the path-based mode, whi
     import { defineConfig } from "vite";
     import react from "@vitejs/plugin-react";
 
+    // Rewrites Vite's <script type="module" crossorigin> tag into a classic
+    // deferred script, so the page also loads over a plain-HTTP LAN address
+    // (see "Fetching your own files" in the sandbox guide).
+    function classicScriptTag() {
+      return {
+        name: "classic-script-tag",
+        apply: "build",
+        transformIndexHtml: {
+          order: "post",
+          handler: (html) => html
+            .replace(/\s+crossorigin(=("[^"]*"|'[^']*'|[^\s>]+))?(?=[\s>])/g, "")
+            .replace(/<script type="module"(?=[^>]*\ssrc=)/g, "<script defer"),
+        },
+      };
+    }
+
     export default defineConfig({
       base: "./",
-      plugins: [react()],
+      plugins: [react(), classicScriptTag()],
+      build: {
+        // One classic script and one stylesheet. Module scripts and
+        // dynamically imported chunks are refused over plain-HTTP LAN access.
+        cssCodeSplit: false,
+        modulePreload: false,
+        rollupOptions: { output: { format: "iife", inlineDynamicImports: true } },
+      },
     });
     ```
+
+    Do not use dynamic `import()` for code splitting: it produces chunks that load as modules.
 
 === "Create React App"
 
@@ -123,8 +148,8 @@ Inside the sandbox, different kinds of request behave differently:
 | Request | Works without extra steps |
 | --- | --- |
 | Scripts, styles, images, audio, video from your xite | Yes |
-| ES modules and dynamically imported chunks from your xite | Yes |
-| Fonts from your xite | Yes |
+| ES modules and dynamically imported chunks from your xite | Over HTTPS and loopback; refused over a plain-HTTP LAN address |
+| Fonts from your xite | Over HTTPS and loopback; refused over a plain-HTTP LAN address |
 | `fetch()` or `XMLHttpRequest` for your xite's own files | Only with the xite's `ajax_key` in the URL, in the path-based mode |
 | Files that belong to another xite | Only with the `Cors:<address>` permission |
 

@@ -191,7 +191,7 @@ The page's origin depends on how the visitor reaches the node. On a local node a
 | Reading another xite's files | `corsPermission`, then `fileGet` with a `cors-<address>/` path prefix |
 | A backend API of your own | Node commands. There is no server. |
 
-Scripts, stylesheets, images, media, fonts and ES modules from the xite's own files load normally in every mode.
+Classic scripts, stylesheets, images and media from the xite's own files load normally in every mode. Fonts and ES modules (`type="module"`, `import`) are refused when the node is reached over a plain-HTTP LAN address, because browsers send no fetch metadata there: ship classic scripts (one IIFE bundle if you use a bundler) and give every web font a system fallback.
 
 Parse your own query string from `location.search` and ignore the `wrapper_nonce` parameter the node adds.
 
