@@ -1,78 +1,153 @@
-## What is EpixNet?
+---
+template: home.html
+title: EpixNet documentation
+description: Run an EpixNet node, build and publish xites, integrate Epix Chain wallets and identity, and develop with AI coding agents.
+hide:
+  - navigation
+  - toc
+---
 
-**EpixNet** is a decentralized peer-to-peer web platform that enables users to create, host, and access websites without relying on traditional centralized servers. Built on BitTorrent technology and cryptographic principles, EpixNet creates a censorship-resistant internet where content is distributed across a network of peers.
+# EpixNet documentation
 
-### Key Characteristics
+## Start here
 
-- **Websites are distributed**: Each site is stored across multiple peers in the network
-- **No central servers**: Sites remain online as long as at least one peer hosts them
-- **Cryptographically secured**: All content is signed and verified using public-key cryptography
-- **BitTorrent-powered**: Uses BitTorrent protocol for peer discovery and content distribution
-- **Real-time updates**: Site owners can update content and changes propagate across the network
-- **Privacy-focused**: Supports Tor integration for anonymous browsing and hosting
+Pick the path that matches what you want to do today.
 
-When a site is updated by its owner, all nodes serving that site (previous visitors) will receive only the incremental updates made to the site content.
+<div class="grid cards cols-4" markdown>
 
-EpixNet comes with a built-in SQL database. This makes content-heavy site development easy. The database is then synced to hosting nodes via incremental updates.
+-   :material-download-circle-outline:{ .lg .middle } **Use EpixNet**
 
+    ---
 
-## Why?
+    Install the node on your computer or phone, open your first xites, and learn what the dashboard shows.
 
-* We believe in open, free, and uncensored communication.
-* No censorship: After something is published there is no way to remove it.
-* No single point of failure: Content remains online even if only one peer is serving it.
-* Impossible to shut down: It's nowhere because it's everywhere. Content is served by any user who wishes to.
-* Fast: EpixNet uses BitTorrent technology to deliver content faster than centralised servers.
-* Works offline: You can access the site even if your internet is unavailable.
-* Secure: Content ownership is secured using strong cryptographic signatures with secp256k1 elliptic curve cryptography.
+    [:octicons-arrow-right-24: Install EpixNet](start/install.md)
 
-[comment]: <> (I'm unsure about the following bit. Thoughts?)
-[comment]: <> (# What problem is EpixNet solving?)
+-   :material-hammer-wrench:{ .lg .middle } **Build a xite**
 
-[comment]: <> (When Tim Berners-Lee created the internet, he meant for it to be free. Not surveilled nor censored. And [he is still fighting for that](http://edition.cnn.com/2014/03/12/tech/web/tim-berners-lee-web-freedom/).)
+    ---
 
-[comment]: <> (The internet is centralized mainly in two places: Content and Domain Names (URLs) are hosted and controlled by central servers. If you control the central servers (and if you are powerful enough you do) you control the network.)
+    Go from an empty folder to a signed, published xite with a database and user content.
 
-[comment]: <> (**Decentralized content storage**)
+    [:octicons-arrow-right-24: Quick start](build/quickstart.md)
 
-[comment]: <> (EpixNet tackles the content storage problem by giving everyone the ability to store content. Site visitors can choose to store a website on their computers, and when they do this they also help to serve the site to other users. The site is online even if only one user is hosting it.)
+-   :material-wallet-outline:{ .lg .middle } **Add web3**
 
-[comment]: <> (**Shared DNS cache**)
+    ---
 
-[comment]: <> (Site addresses on EpixNet are cached by all network members. When you type a EpixNet site URL on your browser this will query other peers connected to you about the site. If one of these peers happen to have the site they will send it to you, if not, they will forward your query along.)
+    Connect wallets with EpixKit, call contracts on Epix Chain, and use xID names as identity.
 
-[comment]: <> (This architecture means that when a site URL is created, as long as one peer is serving it, there is no way to take the URL down.)
+    [:octicons-arrow-right-24: Epix Chain for xites](web3/index.md)
 
+-   :material-robot-outline:{ .lg .middle } **Build with AI**
 
-## Core Features
+    ---
 
-- **Decentralized hosting**: Sites are served by visitors, eliminating hosting costs
-- **Cryptographic authentication**: Password-less authorization using EpixNet's secp256k1-based cryptographic system with bech32-encoded addresses
-- **Real-time synchronization**: Live updates across all peers when content changes
-- **Built-in database**: P2P synchronized SQLite database for dynamic content
-- **Tor integration**: Full support for .onion hidden services (including onion-v3)
-- **Offline capability**: Access cached sites even without internet connection
-- **Clone protection**: One-click site cloning and forking
-- **Multi-platform**: Works on Windows, macOS, Linux, and Android (via Termux)
-- **TLS encrypted connections**: Secure communication between peers
-- **Automatic port opening**: uPnP support for seamless network connectivity
-- **Plugin architecture**: Extensible functionality for advanced use cases
+    Give your coding agent the right context and let it build xites that work on the first refresh.
 
+    [:octicons-arrow-right-24: AI-assisted development](ai/index.md)
 
-## How Does It Work?
+</div>
 
-1. **Start EpixNet**: Run `python3 epixnet.py` to start the local server
-2. **Access sites**: Visit `http://127.0.0.1:42222/{site_address}` in your browser
-3. **Peer discovery**: When you visit a site, EpixNet finds peers using BitTorrent trackers
-4. **Content verification**: All files are verified against cryptographic signatures
-5. **Automatic serving**: Sites you visit are automatically shared with other peers
-6. **Content updates**: Site owners sign and publish updates, which propagate through the network
+## Understand the platform
 
-Every site contains a list of all of its files, each entry containing a SHA512 hash and a signature generated using the site owner's private key. When the site owner modifies the site, they sign a new list and publish it to the peers. After the peers have verified the files list integrity using the signature, they download the modified files and publish the new content to other peers.
+A xite is a folder of ordinary web files with a signed manifest. Peers that visit it keep a copy and serve it to others.
 
-## Current Limitations
+<div class="grid cards cols-4" markdown>
 
-- No I2P integration
-- Limited spam protection mechanisms
-- No built-in encryption for local storage
-- Requires local installation (no browser-only access)
+-   :material-lan:{ .lg .middle } **How EpixNet works**
+
+    ---
+
+    Addresses, signatures, peers, names, databases and routing, explained once and in order.
+
+    [:octicons-arrow-right-24: Read the concepts](start/how-it-works.md)
+
+-   :material-shield-lock-outline:{ .lg .middle } **Privacy and routing**
+
+    ---
+
+    What Tor, I2P, LAN discovery and mesh transports do, and what they do not promise.
+
+    [:octicons-arrow-right-24: Privacy and routing](start/privacy.md)
+
+-   :material-card-account-details-outline:{ .lg .middle } **xID names and identity**
+
+    ---
+
+    Human-readable `.epix` names and profiles, registered on Epix Chain and verified by your node.
+
+    [:octicons-arrow-right-24: xID for users](start/xid.md)
+
+-   :material-apps:{ .lg .middle } **Featured xites**
+
+    ---
+
+    Forum, mail, social feed, blog, wiki, video and more, all running on the network today.
+
+    [:octicons-arrow-right-24: Explore the apps](start/apps.md)
+
+</div>
+
+## Developer reference
+
+Everything a xite can ask the node to do, and the libraries that make it convenient.
+
+<div class="grid cards cols-3" markdown>
+
+-   :material-api:{ .lg .middle } **EpixFrame API**
+
+    ---
+
+    Every command a page can send, with parameters, permissions, return values and examples.
+
+    [:octicons-arrow-right-24: API reference](api/index.md)
+
+-   :material-package-variant-closed:{ .lg .middle } **Libraries**
+
+    ---
+
+    EpixFrame, EpixKit, the React template, smart contract kits and the Epix UI kit.
+
+    [:octicons-arrow-right-24: Library overview](libraries/index.md)
+
+-   :material-file-code-outline:{ .lg .middle } **content.json**
+
+    ---
+
+    The signed manifest that defines a xite: files, signers, permissions and user content rules.
+
+    [:octicons-arrow-right-24: content.json reference](build/content-json.md)
+
+-   :material-database-outline:{ .lg .middle } **Database**
+
+    ---
+
+    Map JSON files into a local SQLite database and query it from the page.
+
+    [:octicons-arrow-right-24: Database guide](build/database.md)
+
+-   :material-security:{ .lg .middle } **Sandbox and security**
+
+    ---
+
+    What a xite page can and cannot do, and how to port an existing web app.
+
+    [:octicons-arrow-right-24: Sandbox model](build/sandbox.md)
+
+-   :material-sitemap-outline:{ .lg .middle } **Internals**
+
+    ---
+
+    Architecture, the peer protocol, EDX distribution and the xID light client.
+
+    [:octicons-arrow-right-24: Architecture](internals/architecture.md)
+
+</div>
+
+## Get involved
+
+EpixNet is open source under the MIT License. The node, the official xites, the libraries and these docs all live in the [EpixZone organization on GitHub](https://github.com/EpixZone).
+
+[Contribute to EpixNet](contributing/index.md){ .md-button }
+[Improve these docs](contributing/docs.md){ .md-button }

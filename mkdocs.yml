@@ -1,55 +1,191 @@
-
-site_name: EpixNet
-site_url: https://epixnet.io
-site_description: Decentralized peer-to-peer web platform using Epix cryptography and BitTorrent technology
+site_name: EpixNet Docs
+site_description: Documentation for EpixNet, the peer-to-peer web platform. Run a node, build xites, integrate Epix Chain, and develop with AI coding agents.
+site_author: EpixZone
+copyright: Released under the MIT License. Maintained by the EpixNet contributors.
 
 repo_url: https://github.com/EpixZone/EpixNet
-edit_uri: ../EpixNetDocs/edit/main/docs/en/
-
-extra_css: [docs.css, stylesheets/menu.css]
-extra_javascript: [EpixFrame.js, jquery.min.js, javascripts/menu.js]
+repo_name: EpixZone/EpixNet
+edit_uri: https://github.com/EpixZone/EpixNetDocs/edit/main/docs/en/
 
 docs_dir: docs/en
 site_dir: site
 
+# The docs are also published as a xite. Explicit .html links work the same
+# from a web server, a public gateway and inside the EpixNet wrapper.
+use_directory_urls: false
+
 theme:
-  language: 'en'
-  palette:
-    scheme: "slate"
-    primary: "cyan"
-    accent: "deep purple"
-  logo: "logo/epixnet_logo.png"
-  name: "material"
-  favicon: "logo/favicon.ico"
-  custom_dir: "docs/resources"
+  name: material
+  language: en
+  custom_dir: docs/overrides
+  logo: assets/brand/epix-icon.svg
+  favicon: assets/brand/favicon.ico
+  # Fonts are self-hosted (see assets/stylesheets/fonts.css). Never load
+  # Google Fonts: the xite build must work offline and over Tor.
   font: false
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil-outline
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - navigation.path
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+
+extra_css:
+  - assets/stylesheets/fonts.css
+  - assets/stylesheets/epix.css
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/EpixZone
+      name: EpixZone on GitHub
 
 markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
   - toc:
       permalink: true
-  - codehilite
-  - markdown.extensions.admonition
-  - pymdownx.superfences
+      toc_depth: 3
   - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 plugins:
   - search:
-      lang: ['en']
+      lang: en
+
+validation:
+  nav:
+    omitted_files: info
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: warn
+    unrecognized_links: warn
 
 nav:
-- Introduction: "index.md"
-- Frequently asked questions: "faq.md"
-- Getting Started:
-  - "using_epixnet/installing.md"
-  - "using_epixnet/create_new_site.md"
-  - "using_epixnet/sample_sites.md"
-- Site Development:
-  - "site_development/getting_started.md"
-  - "site_development/epixframe_api_reference.md"
-  - "site_development/content_json.md"
-  - "site_development/dbschema_json.md"
-  - "site_development/cert_authority.md"
-- Contributing:
-  - "help_epixnet/contributing.md"
-  - "help_epixnet/coding_conventions.md"
-  - "help_epixnet/network_protocol.md"
+  - Home: index.md
+  - Get started:
+      - How EpixNet works: start/how-it-works.md
+      - Install:
+          - Choose your platform: start/install.md
+          - Linux: start/install-linux.md
+          - Windows: start/install-windows.md
+          - macOS: start/install-macos.md
+          - Android: start/install-android.md
+          - iOS: start/install-ios.md
+      - Use EpixNet:
+          - Run a node: start/running.md
+          - Dashboard and sidebar: start/dashboard.md
+          - Browser and wallet: start/browser-wallet.md
+          - Privacy and routing: start/privacy.md
+          - xID names and identity: start/xid.md
+          - Featured xites: start/apps.md
+      - FAQ: faq.md
+      - Glossary: reference/glossary.md
+  - Build xites:
+      - Fundamentals:
+          - Quick start: build/quickstart.md
+          - Anatomy of a xite: build/anatomy.md
+          - content.json: build/content-json.md
+          - Database: build/database.md
+          - Sign and publish: build/publishing.md
+      - Data and users:
+          - User content: build/user-content.md
+          - Merger xites and hubs: build/merger-hubs.md
+          - Files, media and EDX: build/files.md
+          - Feeds and search: build/feeds-search.md
+          - Channels and local profiles: build/messaging.md
+      - Platform:
+          - Sandbox and security: build/sandbox.md
+          - Translations: build/i18n.md
+          - Browser extensions: build/extensions.md
+          - EVX programs: build/evx.md
+          - Package mirrors: build/package-mirrors.md
+  - API reference:
+      - Overview: api/index.md
+      - Wrapper commands: api/wrapper.md
+      - Xite commands: api/xite.md
+      - File commands: api/files.md
+      - Database commands: api/database.md
+      - Identity and crypto: api/identity.md
+      - Merger and feeds: api/merger.md
+      - Messaging: api/messaging.md
+      - Admin commands: api/admin.md
+  - Libraries:
+      - Overview: libraries/index.md
+      - EpixFrame: libraries/epixframe.md
+      - EpixKit: libraries/epixkit.md
+      - React and bundlers: libraries/react.md
+      - Smart contract kits: libraries/contracts.md
+      - UI kit and brand: libraries/ui-kit.md
+  - Web3:
+      - Epix Chain for xites: web3/index.md
+      - Connect a wallet: web3/wallet-connect.md
+      - Work with contracts: web3/contracts.md
+      - xID for developers: web3/xid.md
+  - Build with AI:
+      - AI-assisted development: ai/index.md
+      - AGENTS.md template: ai/agents-md.md
+      - Prompt cookbook: ai/prompts.md
+  - Internals:
+      - Architecture: internals/architecture.md
+      - Peer protocol: internals/protocol.md
+      - EDX distribution: internals/edx.md
+      - xID light client: internals/xid-light-client.md
+      - Channel cryptography: internals/channels-crypto.md
+      - Data directory: internals/data-directory.md
+      - Python interoperability: internals/python-interop.md
+  - Contributing:
+      - Contribute to EpixNet: contributing/index.md
+      - Coding conventions: contributing/conventions.md
+      - Improve these docs: contributing/docs.md

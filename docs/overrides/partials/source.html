@@ -1,0 +1,14 @@
+{#-
+  Repository link without the theme's live GitHub statistics. The stock
+  partial fetches api.github.com on every page view, which the xite build
+  must never do: it has to work offline and must not contact third parties.
+-#}
+<a href="{{ config.repo_url }}" title="{{ lang.t('source') }}" class="md-source">
+  <div class="md-source__icon md-icon">
+    {% set icon = config.theme.icon.repo or "fontawesome/brands/git-alt" %}
+    {% include ".icons/" ~ icon ~ ".svg" %}
+  </div>
+  <div class="md-source__repository">
+    {{ config.repo_name }}
+  </div>
+</a>
