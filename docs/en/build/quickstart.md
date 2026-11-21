@@ -266,15 +266,17 @@ If nothing appears, open the browser developer tools and look at the console of 
 
 ## Step 8: Review content.json
 
-Open `content.json`. The signer maintains most of it, but the descriptive fields are yours to edit. A xite created from the Dashboard starts from a copy of the Dashboard's own manifest, so check the inherited values:
+Open `content.json`. The signer maintains most of it, but the descriptive fields are yours to edit. A new xite starts with a generic title and the other fields below empty, whether you created it from the Dashboard or with `siteCreate`:
 
 | Field | What to do |
 | --- | --- |
 | `title` | Set your xite's name. |
-| `description` | Replace the inherited text. |
-| `favicon` | Set a path to your own icon, or `""`. |
-| `ignore` | A regular expression for files that must not be signed. The inherited value excludes `.git`, which is useful if you keep the folder in git. |
-| `order_policy` | Lists the Dashboard's files. Delete the field, or list your own first-paint files. |
+| `description` | Describe your xite. |
+| `favicon` | Set a path to your own icon, or leave it empty. |
+| `ignore` | A regular expression for files that must not be signed. It starts empty. If you keep the folder in git, set it before your first signature, for example to `"\\.git"`, which also covers `.github/`. |
+
+!!! note "Xites created from the Dashboard on EpixNet v0.6.8"
+    On v0.6.8 a xite created from the Dashboard starts from a copy of the Dashboard's own manifest instead. Replace the inherited `description` and `favicon`, check the inherited `ignore`, and delete `order_policy`, which lists the Dashboard's files.
 
 You can also edit the title and description without a text editor: in the sidebar open the **Manage** tab, change **Xite title** and **Xite description**, then choose **Save xite settings**.
 

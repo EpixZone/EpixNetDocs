@@ -238,6 +238,8 @@ An optional `_common` entry beside the feeds can rename the delete marker (`dele
 
 A descriptor with a missing or mistyped required field is ignored. The other feeds keep working. A record missing a mapped field is skipped on its own.
 
+Each merge file is folded the way the database folds it before its records reach a feed (see [Signed merge files](files.md#signed-merge-files)). An item whose winning version is a tombstone, including a moderator's, contributes nothing, only the creating author's versions count, and a deleted version of a reaction (an un-like) stops counting. (On EpixNet v0.6.8 a moderator's tombstone does not hide the item in feed views, and an un-like made by deleting the like still counts.)
+
 Set `clock_unit` to match the field you map. If a seconds value is read as milliseconds, years of records fall into the same day and the feed collapses into one segment.
 
 ### Query it from the page

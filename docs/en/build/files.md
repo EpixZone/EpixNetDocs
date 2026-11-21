@@ -199,10 +199,11 @@ Constraints:
 - **Owner or signer only.** The upload is accepted when the node owns the xite, or when the visitor's signing address is the xite address or is listed in the root `signers`. Anyone else gets `Forbidden, you can only modify your own files`. It is not a way for ordinary visitors to upload into their user directory. Use `fileWrite` with an optional pattern for that, as Epix Post does for images.
 - **Root manifest.** The entry is written to the root `content.json`.
 - **One use.** The upload URL contains a one-time token tied to the xite.
+- **Exact size.** The body must be the size declared to `bigfileUploadInit`. A larger body is refused with 413 and a shorter one with 400. A refused body leaves the upload URL usable for a retry.
 - **Can be switched off.** The feature is the node's `Bigfile` plugin. When the operator disables it, the upload endpoint answers 403.
 
-!!! warning "Request size"
-    The upload is received as a single request body, and the route does not raise the node's default request body limit (2 MB at the time of writing). Treat the upload command as suitable for small files only, and publish genuinely large files from the xite folder.
+!!! note "Request size on EpixNet v0.6.8"
+    The upload is received as a single request body of up to the declared size. EpixNet v0.6.8 refuses any upload body over 2 MB with 413, so on that release treat the upload command as suitable for small files only, and publish large files from the xite folder.
 
 ### Read
 
@@ -397,7 +398,7 @@ The records array is always named `post`, whatever it holds.
 | `sign` | Node | Signature over the record without `sign`. |
 | anything else | Page | Your own columns: `body`, `title`, `topic_uri` and so on. |
 
-All versions of an item stay in the file. For display and for the database, the node folds each `post_id` to one winner: versions that a later one supersedes drop out, a tombstone beats a concurrent edit, then the highest `clock` wins.
+All versions of an item stay in the file. For display, for the database and for feed views, the node folds each `post_id` to one winner: only the item's creating author can supply its content (any other allowed signer can only add a tombstone), versions that a later one supersedes drop out, a tombstone beats a concurrent edit, then the highest `clock` wins.
 
 ### Create, edit and delete
 
@@ -466,7 +467,7 @@ The node merges a `fileWrite` into the file on disk only once the file is declar
 
 ### Moderation tombstones
 
-A record with `deleted: true` and `moderated: true` may be signed by any allowed signer of the directory, for example an admin named in the rules' `signers`. It carries the target item's own `post_id`, `nonce` or `key`, and `date_added`, and is written into the target user's file. It can only hide an item. Every other record must be signed by its own author, so nobody can edit another person's content. The full flow is `moderateDelete` in [Epix Talk's `js/User.js`](https://github.com/EpixZone/EpixTalk-Xite/blob/main/js/User.js).
+A record with `deleted: true` and `moderated: true` may be signed by any allowed signer of the directory, for example an admin named in the rules' `signers`. It carries the target item's own `post_id`, `nonce` or `key`, and `date_added`, and is written into the target user's file. It can only hide an item, in the database and in feed views. The node shows a content version only from the item's creating author, so a moderator or hub owner can delete another person's item but not replace it. (On EpixNet v0.6.8 a content version from another allowed signer that reuses the item's `post_id` can replace it, and a moderator's tombstone hides the item in the database but not in feed views.) The full flow is `moderateDelete` in [Epix Talk's `js/User.js`](https://github.com/EpixZone/EpixTalk-Xite/blob/main/js/User.js).
 
 ### Read them
 

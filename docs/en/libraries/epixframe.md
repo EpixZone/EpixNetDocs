@@ -11,10 +11,10 @@ The name is used for two things. The **EpixFrame API** is the set of commands a 
 | | |
 | --- | --- |
 | Repository | [EpixZone/epixframe](https://github.com/EpixZone/epixframe) |
-| Version | 1.0.0 (tag `v1.0.0`) |
+| Version | 1.1.0 (tag `v1.1.0`) |
 | License | MIT |
 | Dependencies | None |
-| Size | About 9 KB minified, 19 KB unminified |
+| Size | About 12 KB minified, 29 KB unminified |
 
 ## Install
 
@@ -28,10 +28,13 @@ The repository's `dist/` folder contains three builds:
 | `dist/epixframe.js` | UMD, readable | You load scripts with `<script>` tags and want to read or debug the source. Most official xites ship this one |
 | `dist/epixframe.esm.js` | ES module | You use `import`, with or without a bundler |
 
-Copy the file you chose to a folder such as `js/lib/` in your xite, record where it came from, and keep the license file next to it.
+Copy the file you chose to a folder such as `js/lib/` in your xite, record where it came from, and keep the license file next to it. Take it from the `v1.1.0` tag.
 
 !!! note "Not on the npm registry"
-    The repository has a `package.json` named `@epixzone/epixframe`, but the package is not published to the npm registry at the time of writing, so `npm install @epixzone/epixframe` does not work. Copy the file from the repository instead. The repository README also shows a CDN script tag; do not use that in a xite.
+    The repository has a `package.json` named `@epixzone/epixframe`, but the package is not published to the npm registry at the time of writing, so `npm install @epixzone/epixframe` does not work. Copy the file from the repository instead.
+
+!!! tip "Xites that ship 1.0.x"
+    If your xite vendors EpixFrame 1.0.x, replace the file with the 1.1.0 build of the same name. 1.1.0 fixes several helpers that did not match the node, and code written for 1.0.x keeps working. [Upgrading from 1.0.x](#upgrading-from-10x) lists what changed.
 
 ## Load the library
 
@@ -63,18 +66,16 @@ Copy the file you chose to a folder such as `js/lib/` in your xite, record where
     ```js title="js/app.js"
     import { EpixFrame, epixFrame } from "./lib/epixframe.esm.js";
 
-    const frame = epixFrame();
-
-    frame.on("openWebsocket", async () => {
-      const info = await frame.siteInfo();
+    epixFrame.on("openWebsocket", async () => {
+      const info = await epixFrame.siteInfo();
       document.title = info.content.title;
     });
     ```
 
-    The module exports the `EpixFrame` class and a function named `epixFrame`. Calling the function returns the shared instance and creates it on first use.
+    The module exports the `EpixFrame` class and `epixFrame`, the shared instance. It is created on first use and is the same object as `window.epixFrame` in the script-tag build.
 
-!!! warning "`epixFrame` is an object in one build and a function in the other"
-    With the script tag, `epixFrame` is the instance itself, so you write `epixFrame.siteInfo()`. With the ES module (and with the UMD build loaded through a module loader), `epixFrame` is a function, so you write `epixFrame().siteInfo()`. The repository README shows the module import used like an object; that form does not work.
+!!! note "`epixFrame()` in code written for 1.0.x"
+    In EpixFrame 1.0.x the ES module export is a function, so code written for it calls `epixFrame().siteInfo()`. In 1.1.0, calling `epixFrame()` still returns the shared instance, so that code keeps working. In 1.0.x the module's instance and `window.epixFrame` are also two different instances.
 
 ## Two ways to structure your code
 
@@ -130,8 +131,8 @@ window.Page = new MyApp();
 !!! warning "Create one instance per page"
     Each instance registers its own message listener and introduces itself to the wrapper. If you subclass, create your subclass once and do not also touch `window.epixFrame`, because reading that property creates a second instance.
 
-!!! note "Overriding a hook replaces the matching event"
-    The built-in `onOpenWebsocket`, `onCloseWebsocket` and `onRequest` methods are what emit the `openWebsocket`, `closeWebsocket` and `request` events. If you override a hook and still want `on(...)` listeners to fire, call `super.onOpenWebsocket()` (or the matching method) from your override.
+!!! note "Hooks and events both run"
+    The library emits the `openWebsocket`, `closeWebsocket` and `request` events after the matching hook (`onOpenWebsocket`, `onCloseWebsocket`, `onRequest`) runs, whether or not your override calls `super`. In 1.0.x the built-in hooks emit the events, so an override that does not call `super` stops `on(...)` listeners from firing.
 
 ## How the connection works
 
@@ -207,8 +208,8 @@ Both styles send the same message. They differ in how an error is delivered.
 ### Things to know about results
 
 - **Unknown commands resolve with `null`.** The node answers a command it does not implement with `null` instead of an error, so a misspelled command name looks like an empty result.
-- **Some wrapper commands never answer.** The wrapper sends no response for `wrapperNotification`, `wrapperSetViewport`, `wrapperSetTitle`, `wrapperPushState`, `wrapperReplaceState`, `wrapperOpenWindow` and `wrapperInnerLoaded`. The promises returned by `notify()`, `setViewport()`, `setTitle()`, `pushState()`, `replaceState()`, `openWindow()` and `innerLoaded()` therefore never settle. Call these without `await`.
-- **Some answers wait for the user.** `confirm()`, `prompt()` and `requestPermission()` resolve when the user acts. If the user ignores the dialog, the promise stays pending.
+- **Some wrapper commands never answer.** The wrapper sends no response for `wrapperNotification`, `wrapperSetViewport`, `wrapperSetTitle`, `wrapperPushState`, `wrapperReplaceState`, `wrapperOpenWindow` and `wrapperInnerLoaded`. The helpers `notify()`, `setViewport()`, `setTitle()`, `pushState()`, `replaceState()`, `openWindow()` and `innerLoaded()` therefore post the message and return a promise that is already resolved. If you send these commands with `cmd()`, do not `await` the result: it never settles. (In 1.0.x the helpers' promises never settle.)
+- **Some answers wait for the user.** `confirm()`, `prompt()` and `requestPermission()` resolve when the user acts. If the user ignores or dismisses a `confirm()` or `prompt()` dialog, the promise stays pending. For `requestPermission()`, see [`wrapperPermissionAdd`](../api/wrapper.md#wrapperpermissionadd).
 - **There are no timeouts.** The library does not give up on a command. Add your own timeout where a hung request would block the page.
 
 ## Events and lifecycle hooks
@@ -283,19 +284,19 @@ Reference: [Xite and server commands](../api/xite.md).
 
 | Method | Sends | Notes |
 | --- | --- | --- |
-| `notify(type, message, timeout?)` | `wrapperNotification` | `type` is `"info"`, `"done"` or `"error"`. `timeout` is in milliseconds. The message is HTML-escaped, except for `<br>`, `<b>`, `<u>`, `<i>` and `<small>`. Never settles |
-| `confirm(message)` | `wrapperConfirm` | Shows a prompt with one button. Resolves with `1` when the user presses it |
-| `prompt(message, type?, placeholder?)` | `wrapperPrompt` | Resolves with the text the user entered. `type` defaults to `"text"`. See [Known gaps](#known-gaps) for the third argument |
-| `setTitle(title)` | `wrapperSetTitle` | Sets the browser tab title. Never settles |
-| `setViewport(viewport)` | `wrapperSetViewport` | Sets the wrapper's viewport meta tag, for example `"width=device-width, initial-scale=1"`. Never settles |
-| `openWindow(url)` | `wrapperOpenWindow` | Opens a URL in a new window. Never settles |
-| `innerLoaded()` | `wrapperInnerLoaded` | Tells the wrapper your page has rendered, so it can apply the URL fragment (`#anchor`) to your frame. Never settles |
-| `requestPermission(permission)` | `wrapperPermissionAdd` | Asks the user to grant a permission such as `"Merger:MyType"`. Resolves with `"ok"` after the user grants it |
-| `getLocalStorage()` | `wrapperGetLocalStorage` | Resolves with the value stored for this xite and user, or `null` |
-| `setLocalStorage(data)` | `wrapperSetLocalStorage` | Stores a value for this xite and user. See [Known gaps](#known-gaps) |
+| `notify(type, message, timeout?)` | `wrapperNotification` | `type` is `"info"`, `"done"` or `"error"`. `timeout` is in milliseconds. The message is HTML-escaped, except for `<br>`, `<b>`, `<u>`, `<i>` and `<small>`. Resolves at once |
+| `confirm(message)` | `wrapperConfirm` | Shows a prompt with one button. Resolves with `true` when the user presses it |
+| `prompt(message, type?, caption?, placeholder?)` | `wrapperPrompt` | Resolves with the text the user entered. `type` defaults to `"text"` and `caption`, the button label, to `"OK"` |
+| `setTitle(title)` | `wrapperSetTitle` | Sets the browser tab title. Resolves at once |
+| `setViewport(viewport)` | `wrapperSetViewport` | Sets the wrapper's viewport meta tag, for example `"width=device-width, initial-scale=1"`. Resolves at once |
+| `openWindow(url)` | `wrapperOpenWindow` | Opens a URL in a new window. Resolves at once |
+| `innerLoaded()` | `wrapperInnerLoaded` | Tells the wrapper your page has rendered, so it can apply the URL fragment (`#anchor`) to your frame. Resolves at once |
+| `requestPermission(permission)` | `wrapperPermissionAdd` | Asks the user to grant a permission such as `"Merger:MyType"`. Sends the permission as a string. Resolves with `"ok"` after the user grants it. There is no answer when the permission is already granted |
+| `getLocalStorage()` | `wrapperGetLocalStorage` | Resolves with the value stored for this xite and user, or `null`. A value that 1.0.x stored wrapped in a one-element array is unwrapped |
+| `setLocalStorage(data)` | `wrapperSetLocalStorage` | Stores `data` as given for this xite and user |
 | `getState()` | `wrapperGetState` | Resolves with the current history state |
-| `pushState(state)` | `wrapperPushState` | Adds a history entry without changing the URL. Never settles |
-| `replaceState(state)` | `wrapperReplaceState` | Replaces the current history entry. Never settles |
+| `pushState(state)` | `wrapperPushState` | Adds a history entry without changing the URL. Resolves at once |
+| `replaceState(state)` | `wrapperReplaceState` | Replaces the current history entry. Resolves at once |
 
 Reference: [Wrapper commands](../api/wrapper.md). Check `settings.permissions` in the `siteInfo` result before you ask for a permission the xite may already hold.
 
@@ -307,7 +308,7 @@ Reference: [Wrapper commands](../api/wrapper.md). Check `settings.permissions` i
 | `fileWrite(path, content)` | `fileWrite` | `content` must be base64. Resolves with `"ok"` |
 | `fileDelete(path)` | `fileDelete` | Resolves with `"ok"` |
 | `fileList(path)` | `fileList` | Resolves with every file under a directory, recursively, as inner paths |
-| `dirList(path, opts?)` | `dirList` | Resolves with the names in one directory |
+| `dirList(path, opts?)` | `dirList` | Resolves with the names in one directory. With `{stats: true}` in `opts`, resolves with `[{name, is_dir, size}]` |
 | `fileRules(path)` | `fileRules` | Resolves with the signing rules that apply to a path (signers, size limits) |
 | `fileNeed(path, opts?)` | `fileNeed` | Asks the node to download a file. Resolves with `"ok"` |
 
@@ -362,7 +363,7 @@ xID is the on-chain name and identity system (see [xID for developers](../web3/x
 | `xidResolveIdentity(address)` | `xidResolveIdentity` | Handled by the node in the same way as `xidResolve` |
 | `xidResolveName(name)` | `xidResolveName` | Resolves a name to its on-chain record |
 | `xidResolveBatch(addresses)` | `xidResolveBatch` | Resolves up to 50 addresses or names in one call. Resolves with an object keyed by the values you passed |
-| `xidResolveSite(site)` | `xidResolveSite` | Not implemented by the current node. See [Known gaps](#known-gaps) |
+| `xidResolveSite(site)` | Nothing | Deprecated. The node has no such command, so the helper logs a warning and rejects. Read `canonical_domain` from `siteInfo()`, or use `xidResolveName()` |
 
 Reference: [Identity and cryptography commands](../api/identity.md).
 
@@ -387,8 +388,8 @@ Reference: [Identity and cryptography commands](../api/identity.md).
 | `feedList()` | `feedListFollow` | Resolves with the feeds this xite follows |
 | `feedQuery(params?)` | `feedQuery` | Runs every followed feed across all xites. Accepts `limit` and `day_limit`. Requires the ADMIN permission |
 | `feedSearch(query)` | `feedSearch` | Searches across xites. Requires the ADMIN permission |
-| `muteAdd(authAddress, certUserId, reason)` | `muteAdd` | Mutes a user |
-| `muteRemove(authAddress)` | `muteRemove` | Removes a mute |
+| `muteAdd(authAddress, certUserId, reason)` | `muteAdd` | Mutes a user. Unless the xite holds ADMIN, the node asks the visitor to confirm |
+| `muteRemove(authAddress)` | `muteRemove` | Removes a mute, with the same confirmation |
 | `muteList()` | `muteList` | Lists muted users. Requires the ADMIN permission |
 
 Reference: [Merger, feed and search commands](../api/merger.md) and [Feeds, notifications and search](../build/feeds-search.md).
@@ -398,7 +399,7 @@ Reference: [Merger, feed and search commands](../api/merger.md) and [Feeds, noti
 | Method | Sends | Notes |
 | --- | --- | --- |
 | `optionalFileInfo(path)` | `optionalFileInfo` | Resolves with details about one optional file |
-| `optionalFileList(path)` | `optionalFileList` | Resolves with this xite's downloaded optional files. The node reads named options only, so call `cmd("optionalFileList", {...})` to filter or sort |
+| `optionalFileList(filterInnerPath?, opts?)` | `optionalFileList` | Resolves with this xite's optional files, by default the downloaded ones. `filterInnerPath` is a SQL `LIKE` pattern such as `"data/videos/%"`. `opts` takes `address`, `filter`, `orderby` and `limit`, and may be the only argument |
 | `optionalFilePin(path)` | `optionalFilePin` | Pins a file so it is kept |
 | `optionalFileUnpin(path)` | `optionalFileUnpin` | Removes the pin |
 | `optionalFileDelete(path)` | `optionalFileDelete` | Deletes the local copy |
@@ -412,7 +413,7 @@ Reference: [File commands](../api/files.md) and [Optional and big files](../buil
 | Method | Sends | Notes |
 | --- | --- | --- |
 | `mergerSiteAdd(addresses)` | `mergerSiteAdd` | Adds one address or an array of addresses to this merger xite |
-| `mergerSiteDelete(address)` | `mergerSiteDelete` | Removes a merged xite |
+| `mergerSiteDelete(address)` | `mergerSiteDelete` | Removes a merged xite of one of this merger's types |
 | `mergerSiteList(querySiteInfo?)` | `mergerSiteList` | Lists merged xites. Pass `true` to include each xite's information |
 
 Reference: [Merger, feed and search commands](../api/merger.md) and [Merger xites and hubs](../build/merger-hubs.md).
@@ -476,22 +477,26 @@ The library also keeps your scroll position across reloads: it saves `scrollTop`
 
 For reading a file from your xite, `fileGet()` is the simplest tool and works in every serving mode.
 
-A direct `fetch()` or `XMLHttpRequest` to your own files is different. In the path-based fallback mode (a node reached over the LAN, or a public gateway) your page runs in an opaque origin, and the node only answers such a request when its URL carries the xite's `ajax_key`. `monkeyPatchAjax()` patches `XMLHttpRequest.prototype.open` so that the key is appended to XHR URLs, then asks the wrapper for the key. It also replaces `window.fetch`, but that replacement does not work in the current build (see [Known gaps](#known-gaps)), so add the key to `fetch` URLs yourself:
+A direct `fetch()` or `XMLHttpRequest` to your own files is different. In the path-based fallback mode (a node reached over the LAN, or a public gateway) your page runs in an opaque origin, and the node only answers such a request when its URL carries the xite's `ajax_key`. Call `monkeyPatchAjax()` once at startup. It asks the wrapper for the key and patches `XMLHttpRequest` and `fetch` so that the key is added to requests for the node's own host: relative URLs, and URLs whose host is `location.host`. It accepts a string, a `URL` or a `Request`.
 
 ```js
-var ajaxKey = await epixFrame.cmd("wrapperGetAjaxKey");
-var res = await fetch("data/catalog.json?ajax_key=" + encodeURIComponent(ajaxKey));
+epixFrame.monkeyPatchAjax();
+var res = await fetch("data/catalog.json");
 ```
 
-!!! warning "The patch applies to every request"
-    After `monkeyPatchAjax()`, the key is added to every `XMLHttpRequest`, including requests to other hosts such as a chain RPC endpoint. Always `await` the call before fetching, because requests made earlier carry no usable key. If your xite also talks to external services, prefer `fileGet()`, or add the key only to your own URLs:
+- **Other hosts never get the key.** Requests to a chain RPC endpoint or any other host are passed through unchanged.
+- **Early requests wait.** A same-host `fetch` made before the wrapper has returned the key is delayed until the key arrives, and an asynchronous XHR is queued. A synchronous XHR made that early is sent without the key.
+- **Calling it twice is safe.** The patch is applied once.
+
+!!! note "EpixFrame 1.0.x"
+    In 1.0.x the `fetch` patch does not add the key (it forwards the original URL), the XHR patch adds the key to every host, including RPC endpoints, and requests made before the call has resolved carry no usable key. If you cannot update yet, read files with `fileGet()`, or add the key to your own URLs only:
 
     ```js
     var ajaxKey = await epixFrame.cmd("wrapperGetAjaxKey");
 
     function xiteFetch(path) {
       var sep = path.indexOf("?") === -1 ? "?" : "&";
-      return fetch(path + sep + "ajax_key=" + ajaxKey);
+      return fetch(path + sep + "ajax_key=" + encodeURIComponent(ajaxKey));
     }
     ```
 
@@ -504,7 +509,7 @@ Classic scripts, styles and images that your HTML references load without the ke
 | `isEmbedded` | `true` when a wrapper nonce was found in the page URL |
 | `url` | The value passed to the constructor, or `null` |
 | `wrapper_nonce` | The nonce read from the URL, or `null` |
-| `history_state` | The last history state received from the wrapper. Set only by `dist/epixframe.js` on the `main` branch, see [Known gaps](#known-gaps) |
+| `history_state` | The last history state received from the wrapper. Set by all three builds from 1.1.0 |
 | `waiting_cb` | Pending requests, keyed by message id |
 | `log(...args)` | `console.log` with the class name as a prefix, for example `[MyApp]` |
 | `logStart(name, ...args)` | Starts a named timer |
@@ -524,10 +529,8 @@ The repository ships declarations in `types/epixframe.d.ts`. Because the package
     ```ts title="src/app.ts"
     import { epixFrame, type SiteInfo } from "./lib/epixframe.esm.js";
 
-    const frame = epixFrame();
-
-    frame.on("openWebsocket", async () => {
-      const info: SiteInfo = await frame.siteInfo();
+    epixFrame.on("openWebsocket", async () => {
+      const info: SiteInfo = await epixFrame.siteInfo();
       console.log(info.address, info.peers);
     });
     ```
@@ -547,25 +550,29 @@ The repository ships declarations in `types/epixframe.d.ts`. Because the package
     export {};
     ```
 
-The declarations type the helper methods, the event names and interfaces such as `ServerInfo`, `SiteInfo`, `FileRules` and `FileGetOptions`. Treat the result interfaces as a starting point: they carry an index signature so unknown fields are allowed, and a few of them describe an older API shape (see below). `cmd()` returns `Promise<any>`, so cast the result of commands that have no helper.
+The declarations type the helper methods, the event names and interfaces such as `ServerInfo`, `SiteInfo`, `FileRules` and `FileGetOptions`. Treat the result interfaces as a starting point: they carry an index signature so unknown fields are allowed. Take the declarations from the same tag as the build, because the 1.0.0 declarations describe older shapes for some results, such as the VRF types. `cmd()` returns `Promise<any>`, so cast the result of commands that have no helper.
 
-## Known gaps
+## Upgrading from 1.0.x
 
-The library was written against an earlier node. The transport is unaffected, but a few helpers do not line up with what the current node and wrapper do. Until the library is updated, use the workaround shown.
+1.1.0 was checked against what the node and wrapper actually read and answer. The transport is unchanged. These helpers behave differently from 1.0.x. The last column says how 1.0.x behaves and, if you still ship it, how to work around it.
 
-| Helper | What happens | Do this instead |
+| Helper | In 1.1.0 | With 1.0.x |
 | --- | --- | --- |
-| `xidResolveSite(site)` | The current node has no `xidResolveSite` command, so the promise resolves with `null` | Read `canonical_domain` from `siteInfo()`, or use `xidResolveName()` |
-| `setLocalStorage(data)` | The helper wraps `data` in an array before sending, so `getLocalStorage()` later returns `[data]` | `cmd("wrapperSetLocalStorage", data)`, which stores the value as given |
-| `prompt(message, type, placeholder)` | The wrapper reads the third value as the button caption and a fourth as the placeholder | `cmd("wrapperPrompt", [message, type, caption, placeholder])` |
-| `vrfDeriveRandom(height, seed, count)` | The parameter is named `height` in the source and the declarations, but the node expects the beacon value (a hex string) and returns a plain array | Pass the `beacon` field from `vrfGetBeacon()` as the first argument |
-| `dirList(path, opts)` | Options are sent positionally and the node ignores them | `cmd("dirList", {inner_path: path, stats: true})` |
-| `monkeyPatchAjax()` | The `XMLHttpRequest` patch works. The `fetch` patch does not: the builds run in strict mode, where the wrapper's change to its `url` parameter does not reach the `arguments` it forwards, so `fetch` is called without the key | Add the key from `cmd("wrapperGetAjaxKey")` to your `fetch` URLs, or read files with `fileGet()` |
-| `requestPermission(permission)` | The helper sends the permission inside an array, and the wrapper compares that value with the granted list, so a permission the xite already holds is asked for again. (Sent as a plain string, an already granted permission gets no answer at all) | Check `settings.permissions` from `siteInfo()` first and only ask for what is missing |
-| `confirm(message)` | Declared as `Promise<boolean>`, but resolves with the number `1` | Treat any resolved value as confirmation |
-| VRF result types | The `VrfBeacon`, `VrfDeriveResult` and `VrfMultiBlockResult` interfaces list fields the current node does not return | Use the result shapes in [Randomness beacon](#randomness-beacon-vrf) |
+| `monkeyPatchAjax()` | Adds the key to same-host `fetch` and XHR requests only, waits for the key, and can be called twice | Only XHR gets the key, on every host. Add the key from `cmd("wrapperGetAjaxKey")` to your own `fetch` URLs, or use `fileGet()` |
+| `setLocalStorage(data)`, `getLocalStorage()` | Stores `data` as given. Reading unwraps a value that 1.0.x stored as `[data]` | The value is stored as `[data]`. Use `cmd("wrapperSetLocalStorage", data)` |
+| `requestPermission(permission)` | Sends the permission as a string | Sends `[permission]`, which EpixNet v0.6.8 and earlier ask for again when it is already granted. Check `settings.permissions` from `siteInfo()` first |
+| `prompt(message, type, caption, placeholder)` | The third argument is the button caption, as the wrapper reads it | The third argument is sent in the caption slot. Use `cmd("wrapperPrompt", [message, type, caption, placeholder])` |
+| `vrfDeriveRandom(beacon, seed, count)` | The first argument is the beacon hex string. The result is a plain array | Same on the wire, but the source and declarations call the argument `height`. Pass the `beacon` field |
+| `dirList(path, opts)` | Sends `{inner_path, ...opts}`, so `stats` works | Options are ignored. Use `cmd("dirList", {inner_path: path, stats: true})` |
+| `optionalFileList(filterInnerPath, opts)` | Sends the node's named options | The argument is ignored and every downloaded optional file is returned. Use `cmd("optionalFileList", {...})` |
+| `xidResolveSite(site)` | Deprecated. Logs a warning and rejects | Resolves with `null` |
+| `notify()`, `setTitle()`, `setViewport()`, `pushState()`, `replaceState()`, `openWindow()`, `innerLoaded()` | Fire-and-forget. Resolve at once | The promises never settle. Do not `await` them |
+| `confirm(message)` | Resolves with `true` | Resolves with the number `1` |
+| `epixFrame` (ES module) | The shared instance, also callable | A function. Call `epixFrame()` |
+| Hooks and events | Events fire even if an override skips `super` | Call `super` from an overridden hook |
+| `history_state` | Set by all three builds | Not set by the `v1.0.0` builds. Scroll restoration works in all of them |
 
-The ES module and minified builds in `dist/` are also one small change behind `dist/epixframe.js` on the `main` branch: they do not set the public `history_state` property. The `dist/epixframe.js` at tag `v1.0.0` predates that change too, so take that file from `main` (the copy the official xites ship) if you need the property. This only matters if your code reads that property. Scroll restoration works in all three builds.
+The [changelog](https://github.com/EpixZone/epixframe/blob/main/CHANGELOG.md) has the full list.
 
 ## Build from source
 

@@ -25,7 +25,7 @@ Three consequences are worth keeping in mind:
 
 ## Calling a command
 
-The examples in this reference use [EpixFrame](../libraries/epixframe.md), the official JavaScript library, loaded from a local copy in the xite with a script tag. That build defines `window.epixFrame`, a shared instance that is created the first time you read it. If you import the ES module build, `epixFrame` is a function instead: call `epixFrame()` to get the instance.
+The examples in this reference use [EpixFrame](../libraries/epixframe.md), the official JavaScript library, loaded from a local copy in the xite with a script tag. That build defines `window.epixFrame`, a shared instance that is created the first time you read it. If you import the ES module build, its `epixFrame` export is the same shared instance. (In EpixFrame 1.0.x the module export is a function: call `epixFrame()` to get the instance.)
 
 ```html title="index.html"
 <script src="js/lib/epixframe.min.js"></script>
@@ -73,13 +73,13 @@ epixFrame.on("openWebsocket", async function () {
     ```
 
 !!! warning "Some commands never answer"
-    Several wrapper commands send no response (for example `wrapperNotification` and `wrapperSetTitle`), and a dialog the visitor dismisses never answers either. A Promise for such a command stays pending forever. Do not `await` a command that the reference marks as "no response", and do not make your page's progress depend on a dialog being answered.
+    Several wrapper commands send no response (for example `wrapperNotification` and `wrapperSetTitle`), and a dialog the visitor dismisses never answers either. A Promise for such a command stays pending forever. Do not `await` a command that the reference marks as "no response", and do not make your page's progress depend on a dialog being answered. (The EpixFrame 1.1.0 helpers for these commands, such as `notify()` and `setTitle()`, resolve at once. `cmd` does not.)
 
 ### Convenience methods
 
 EpixFrame wraps the most common commands in named methods, for example `epixFrame.siteInfo()`, `epixFrame.fileGet(path)`, `epixFrame.dbQuery(sql, params)` and `epixFrame.notify(type, message)`. Each command in this reference names its helper when one exists. Every helper returns a Promise and sends exactly one command, so `cmd` and the helpers can be mixed freely.
 
-A few helpers send parameters in a different shape than you might expect, and the reference points these out where they matter (see `wrapperSetLocalStorage`, `wrapperPrompt` and `wrapperPermissionAdd`). The full list of helpers is in the [EpixFrame library guide](../libraries/epixframe.md).
+EpixFrame 1.0.x sends some parameters in a different shape than the node reads (for example for `wrapperSetLocalStorage`, `wrapperPrompt`, `wrapperPermissionAdd` and `dirList`). 1.1.0 matches the node; see [Upgrading from 1.0.x](../libraries/epixframe.md#upgrading-from-10x). The full list of helpers is in the [EpixFrame library guide](../libraries/epixframe.md).
 
 ### Parameter forms
 
@@ -88,6 +88,7 @@ A few helpers send parameters in a different shape than you might expect, and th
 - **Wrapper commands** read their parameters exactly as documented, most often as an array.
 - **Node commands** usually accept both a positional array and an object with named keys. `["content.json", true]` and `{"inner_path": "content.json", "required": true}` are typically equivalent. The parameter tables in this reference give the name of each parameter and, where the handler reads one, its position in the array form.
 - Some options are read only from the object form. The reference says so in the parameter's description.
+- A bare value (a string or a number, not an array or object) stands for the first parameter. For example, `cmd("identitySelect", "epix1...")` sets `auth_address` and `cmd("vrfGetBeacon", 123456)` sets the height. A few commands also read a bare string as a later parameter, and their reference says so, so for a command with more than one parameter prefer an array or an object. On EpixNet v0.6.8 more commands do this, including `ecdsaSign` and `identityLinkComplete`, and `identitySelect` and `vrfGetBeacon` do not read a bare value at all.
 
 When you call `cmd` with no parameters, EpixFrame sends an empty object.
 
@@ -275,7 +276,7 @@ Every command, in alphabetical order. The **Permission** column is a summary; th
 | `channelContacts` | List the peers the identity has threads with. | `CHANNELS` or `Channels:<app>` | [Messaging](messaging.md#channelcontacts) |
 | `channelConversation` | Read the messages of one conversation. | `CHANNELS` or `Channels:<app>` | [Messaging](messaging.md#channelconversation) |
 | `channelDeleteLocal` | Delete a conversation from this node only. | `CHANNELS` or `Channels:<app>` | [Messaging](messaging.md#channeldeletelocal) |
-| `channelIdentitySetEnabled` | Turn channels on or off for an identity. | `CHANNELS` or `Channels:<app>` | [Messaging](messaging.md#channelidentitysetenabled) |
+| `channelIdentitySetEnabled` | Turn channels on or off for an identity. | `ADMIN` | [Messaging](messaging.md#channelidentitysetenabled) |
 | `channelIdentitySetup` | Run the channel setup job for an identity. | `CHANNELS` or `Channels:<app>` | [Messaging](messaging.md#channelidentitysetup) |
 | `channelIdentityStatus` | Read the channel status of the identity in scope. | `CHANNELS` or `Channels:<app>` | [Messaging](messaging.md#channelidentitystatus) |
 | `channelJoin` | Subscribe the connection to pushed event channels. | None | [Xite](xite.md#channeljoin) |
@@ -360,11 +361,11 @@ Every command, in alphabetical order. The **Permission** column is a summary; th
 | `localProfileSeal` | Encrypt and publish a private group message. | `LOCAL_PROFILE` | [Messaging](messaging.md#localprofileseal) |
 | `localProfileVerify` | Verify one signed record. | `LOCAL_PROFILE` | [Messaging](messaging.md#localprofileverify) |
 | `mergerSiteAdd` | Add xites to the node and merge them into this merger. | `Merger:<type>` | [Merger and feeds](merger.md#mergersiteadd) |
-| `mergerSiteDelete` | Remove merged xites from the node. | `Merger:<type>` | [Merger and feeds](merger.md#mergersitedelete) |
+| `mergerSiteDelete` | Remove merged xites of the merger's own types from the node. | `Merger:<type>` | [Merger and feeds](merger.md#mergersitedelete) |
 | `mergerSiteList` | List the xites merged into this merger xite. | `Merger:<type>` | [Merger and feeds](merger.md#mergersitelist) |
-| `muteAdd` | Add an author to the node-wide mute list. | None | [Identity](identity.md#muteadd) |
+| `muteAdd` | Add an author to the node-wide mute list. | None (user confirms, unless `ADMIN`) | [Identity](identity.md#muteadd) |
 | `muteList` | Read the node-wide list of muted authors. | `ADMIN` | [Admin](admin.md#mutelist) |
-| `muteRemove` | Remove an author from the node-wide mute list. | None | [Identity](identity.md#muteremove) |
+| `muteRemove` | Remove an author from the node-wide mute list. | None (user confirms, unless `ADMIN`) | [Identity](identity.md#muteremove) |
 | `networkRetry` | Retry work that is waiting on the network. | None for the bound xite | [Admin](admin.md#networkretry) |
 | `notificationCount` | Aggregate unread notification total. | `ADMIN` | [Admin](admin.md#notificationcount) |
 | `notificationDismiss` | Mark a notification of any xite as seen. | `ADMIN` | [Admin](admin.md#notificationdismiss) |
@@ -436,7 +437,7 @@ Every command, in alphabetical order. The **Permission** column is a summary; th
 | `siteSign` | Sign the `content.json` that governs a path. | None (signing key needed) | [Xite](xite.md#sitesign) |
 | `siteSignMessage` | Sign a message with the xite's own key. | `ADMIN` | [Admin](admin.md#sitesignmessage) |
 | `siteUnfavourite` | Clear a xite's favourite mark. | `ADMIN` | [Admin](admin.md#siteunfavourite) |
-| `siteUpdate` | Start a background check for a newer version of a xite. | None | [Xite](xite.md#siteupdate) |
+| `siteUpdate` | Start a background check for a newer version of a xite. | None for the page's own xite, `ADMIN` for any other | [Xite](xite.md#siteupdate) |
 | `userGetGlobalSettings` | Read the user's node-wide UI settings. | None | [Identity](identity.md#usergetglobalsettings) |
 | `userGetSettings` | Read the xite's private per-user settings. | None | [Identity](identity.md#usergetsettings) |
 | `userList` | List known users (Multiuser plugin). | `ADMIN` | [Admin](admin.md#userlist) |

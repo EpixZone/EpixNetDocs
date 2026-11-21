@@ -193,14 +193,14 @@ Lists the entries of one directory.
 var names = await epixFrame.dirList("data/img");
 // ["thumbs", "banner.jpg", "logo.png"]
 
-// The stats option needs the object form:
-var entries = await epixFrame.cmd("dirList", { inner_path: "data/img", stats: true });
+// The stats option is read from the object form (EpixFrame 1.1.0 sends it):
+var entries = await epixFrame.dirList("data/img", { stats: true });
 // [{ name: "thumbs", is_dir: true, size: 4096 }, { name: "banner.jpg", is_dir: false, size: 48211 }, ...]
 ```
 
 Notes:
 
-- `epixFrame.dirList(path, opts)` sends an array, so its `opts` argument is not read. Use `cmd` with an object to get `stats`.
+- `epixFrame.dirList(path, opts)` in EpixFrame 1.1.0 sends `{inner_path, ...opts}`. The 1.0.x helper sends an array, so its `opts` argument is not read; with 1.0.x, call `cmd("dirList", { inner_path: path, stats: true })`.
 - The listing shows what is on disk on this node, including files that are not yet signed and excluding declared files that have not been downloaded.
 - A directory that does not exist is an error: `dir not found`.
 
@@ -410,13 +410,14 @@ What the `POST` does:
 
 - The body is the raw file, or a `multipart/form-data` body with a single file part.
 - The node hashes the bytes in pieces, writes the file, and adds an entry for it to `files_optional` in the root `content.json` on disk. A file of more than one piece also gets a `<name>.piecemap.msgpack` file. The root `content.json` then needs signing and publishing.
-- A successful response is JSON: `{"merkle_root", "piece_num", "piece_size", "inner_path"}`. A failed one has status 400 and `{"error": "..."}`.
-- The token works once and only for the xite it was issued for. Errors include `Unknown or expired upload nonce` and `Upload nonce belongs to another xite`.
+- A successful response is JSON: `{"merkle_root", "piece_num", "piece_size", "inner_path"}`. A failed one has status 400 (413 for a body that is too large) and `{"error": "..."}`.
+- The body must be exactly the size declared to `bigfileUploadInit`. A larger body is refused with 413 (`Upload body exceeds the declared size of <n> bytes`), a shorter one with 400. EpixNet v0.6.8 refuses any body over 2 MB with 413.
+- The token works once and only for the xite it was issued for. A refused body leaves it usable for a retry. Errors include `Unknown or expired upload nonce` and `Upload nonce belongs to another xite`.
 - The endpoint answers 403 when the node operator has disabled the `Bigfile` plugin.
 
 Errors from the command itself: `bigfileUploadInit: inner_path required`, `bigfileUploadInit: size required`, `Unknown xite` and `Forbidden, you can only modify your own files`.
 
-See [Upload from the page](../build/files.md#upload-from-the-page) for the request size caveat and for when to publish large files from the xite folder instead.
+See [Upload from the page](../build/files.md#upload-from-the-page) for the constraints and for when to publish large files from the xite folder instead.
 
 ## Optional files
 
@@ -466,7 +467,7 @@ var files = await epixFrame.cmd("optionalFileList", {
 
 Notes:
 
-- `epixFrame.optionalFileList(path)` sends an array, which this command does not read, so the helper always returns the default list. Use `cmd` with an object to pass options.
+- `epixFrame.optionalFileList(filterInnerPath, opts)` in EpixFrame 1.1.0 sends these named options: the first argument becomes `filter_inner_path`, and `opts` adds `address`, `filter`, `orderby` and `limit`. The 1.0.x helper `optionalFileList(path)` sends an array, which this command does not read, so it always returns the default list; with 1.0.x, use `cmd` with an object.
 - The list covers optional files declared by the root `content.json` and by user manifests.
 
 ### optionalFileInfo

@@ -371,11 +371,11 @@ Notes:
 
 Starts a background check for a newer version of a xite and downloads what changed, including user content. The command returns immediately; the outcome arrives as events.
 
-**Permission:** none
+**Permission:** none for the page's own xite. Any other xite needs `ADMIN` (or the admin socket).
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| `address` | string | no | The address of the xite to update (position 0 in the array form, or a bare string). Default: the bound xite. Must be an address; a `.epix` name is rejected. |
+| `address` | string | no | The address of the xite to update (position 0 in the array form, or a bare string). Default: the bound xite. Must be an address; a `.epix` name is rejected. Another xite's address needs `ADMIN`. |
 | `update_request_id` | string | no | A token of 1 to 128 bytes that is echoed in the event that ends this update, so the caller can tell its own request from background updates. Read from the object form only. |
 
 **Returns:** the string `"Updated"`, as soon as the update has been started. It does not mean the update has finished or found anything.
@@ -401,7 +401,7 @@ epixFrame.on("request", function (cmd, message) {
 epixFrame.cmd("siteUpdate", { update_request_id: requestId });
 ```
 
-Errors: `Unknown xite: <address>` when the node does not serve that address, and `Xite commands take the epix1 address, not a name: <name>` when a name is passed.
+Errors: `Unknown xite: <address>` when the node does not serve that address, or when it is another xite and the page lacks `ADMIN` (EpixNet v0.6.8 updates any served xite for any page), and `Xite commands take the epix1 address, not a name: <name>` when a name is passed.
 
 ### siteClone
 
@@ -421,7 +421,7 @@ What happens for a new xite:
 
 1. The node derives a new address and private key from the visitor's seed and saves the key.
 2. It copies the source files. Paths that contain `-default` are the template's clean starting state: they are copied with that suffix removed, and the source's live counterparts are not copied. A clone of a blog with `data-default/` next to `data/` therefore starts empty instead of with the author's posts. Files whose names end in `-old` or `-new` are skipped.
-3. It writes a new `content.json` based on the source's (`content.json-default` in the chosen root if present, otherwise the root `content.json`). The title becomes `My <source title>`, or `My New Epix Xite` when the root directory name starts with `template-`. The source address is recorded as `cloned_from` and the root as `clone_root`. Fields tied to the source, such as `domain`, are removed.
+3. It writes a new `content.json` based on the source's (`content.json-default` in the chosen root if present, otherwise the root `content.json`). The title becomes `My <source title>`, or `My New Epix Xite` when the root directory name starts with `template-`. The source address is recorded as `cloned_from` and the root as `clone_root`. Fields tied to the source, such as `domain`, are removed. When the root is a `template-` directory without its own `content.json-default`, the root `content.json` it borrows is reset: `description`, `favicon`, the background colors, `viewport`, `ignore`, `optional` and `shard` start empty, and `order_policy`, `distribution` and `postmessage_nonce_security` are dropped. Structural fields such as `includes`, `user_contents` and `merged_type` are kept. (EpixNet v0.6.8 keeps the source's values, so a xite created from the Dashboard inherits the Dashboard's.)
 4. It signs the new xite, starts serving it, and tells the wrapper to navigate to `/<new address>/`.
 
 With `target_address`, the node keeps the target's `content.json` and the data the target already has in place of the template's defaults, copies the source's other files over it, signs, and shows a "Xite source code upgraded!" notification instead of navigating. The node must have the target's private key saved.

@@ -11,8 +11,9 @@ Messaging commands let a xite (a site published on EpixNet) use the two private 
 ### Channel commands
 
 - **A channel grant is required.** The calling xite must hold `CHANNELS` (the whole private inbox, every app) or `Channels:<app>` (only the conversations tagged with `<app>`). The Epix Mail xite passes without a grant and has full scope, and so does a xite that holds `ADMIN`. Without a grant every channel command fails with `channels: this xite has no channel permission`. The visitor grants the permission in the wrapper's prompt after the page calls [`wrapperPermissionAdd`](wrapper.md#wrapperpermissionadd). No permission can be granted on a public gateway.
-- **App scope.** A `Channels:<app>` client reads, sends and changes only its own app's conversations. Passing a different `app` fails with `channels: this xite is scoped to app <app>`, and touching a conversation of another app fails with `channels: conversation belongs to app <app>`. A full grant reads every app unless it passes `app`, and sends as `mail` unless it passes `app`. An `app` value must be 1 to 32 characters from `a` to `z`, `0` to `9`, `_` and `-`; anything else fails with `channels: invalid app name "<app>"`. The permission prompt accepts longer grant names, but only a name in this format can also be passed as `app`, so pick one that fits.
-- **The acting identity.** Each linked xID identity the node holds has its own channel keys and its own inbox. A command acts as the identity the xite currently uses. When the first parameter is an object, it may name another identity the node holds with `auth_address` (the identity's `epix1` address) or `xid` (its name, with or without `.epix`); an identity the node does not hold fails with `unknown identity <value>`. This works for any channel client, scoped or not. The parameter tables mark it as **identity selector**.
+- **Not on gateways.** On a public gateway every channel command fails with `Channels are unavailable on public gateways`, whatever the page's grants, and the node pushes no `channelEvent` to pages. Only the operator socket can use channels there.
+- **App scope.** A `Channels:<app>` client reads, sends and changes only its own app's conversations. Passing a different `app` fails with `channels: this xite is scoped to app <app>`, and touching a conversation of another app fails with `channels: conversation belongs to app <app>`. A full grant reads every app unless it passes `app`, and sends as `mail` unless it passes `app`. An `app` value must be 1 to 32 characters from `a` to `z`, `0` to `9`, `_` and `-`; anything else fails with `channels: invalid app name "<app>"`. A `Channels:<app>` grant follows the same rule, so a grant always names an app the commands accept. (EpixNet v0.6.8 also grants longer names, with uppercase letters or dots, that no command accepts as `app`.)
+- **The acting identity.** Each linked xID identity the node holds has its own channel keys and its own inbox. A command acts as the identity the xite currently uses. When the first parameter is an object, it may name another identity the node holds with `auth_address` (the identity's `epix1` address) or `xid` (its name, with or without `.epix`); an identity the node does not hold fails with `unknown identity <value>`. Only a full grant (`CHANNELS`, Epix Mail, `ADMIN` or the operator socket) can switch identities this way. A `Channels:<app>` client acts only as the identity its own xite uses (its selection, else the node default), and naming another one fails with `channels: this xite cannot act as identity <value>`. The parameter tables mark it as **identity selector**.
 - **No identity selected.** When the xite is browsed without an identity, read commands answer with empty results, `channelSessionInfo` reports `identity: null`, `channelIdentityStatus` answers `null`, and commands that act as an identity fail with `xID required: select or link an identity for this xite`.
 - **Parameter form.** Most channel commands read a positional array, and several read their options only from an object inside that array, as in `[{ app: "talk" }]`. Each table says which form the command reads. With no parameters, EpixFrame sends an empty object, which every command that has only optional parameters accepts.
 - **When channels are off.** If the node operator turned channels off with the `channel_enabled` setting, every command fails with `channels are not enabled`. If the `Channel` plugin is disabled, the commands are not registered and answer `null`, like any unknown command.
@@ -192,6 +193,7 @@ Reads the array form `[{...}]` or a bare object.
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
 | `auth_address` or `xid` | string | no | Identity selector. |
+| `app` | string | no | One app only. A scoped client always sees its own app. |
 
 **Returns:** an array of `{"xid": string}`, sorted by name and without duplicates. Empty without an identity.
 
@@ -200,7 +202,7 @@ var contacts = await epixFrame.cmd("channelContacts", []);
 var names = contacts.map(function (c) { return c.xid; });
 ```
 
-The list is built from the peer of each of the 500 most recent unarchived conversations, across every app. It is not limited to the caller's app scope.
+The list is built from the peer of each of the 500 most recent unarchived conversations in the app scope: every app for a full grant unless it passes `app`, and only its own app for a scoped client.
 
 ### channelKeyBundlePublish
 
@@ -518,7 +520,7 @@ The job runs in the background. Watch for the `setup` [`channelEvent`](#the-chan
 
 Turns channels on or off for one identity the node holds. While off, the identity's incoming messages are not indexed, its unread count is not shown, and its bundle is not published again. A bundle already in the hub stays there.
 
-**Permission:** `CHANNELS` or `Channels:<app>`.
+**Permission:** `ADMIN`.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -533,7 +535,7 @@ var setup = await epixFrame.cmd("channelIdentitySetEnabled", [session.identity.a
 
 Notes:
 
-- The command acts on any identity the node holds, whatever the caller's app scope. Change this setting only in response to a clear action by the user.
+- The command acts on any identity the node holds. It is an administration command: a page needs `ADMIN`, and the node's Config page runs it from the operator socket. A channel grant alone is not enough. (On EpixNet v0.6.8 any channel client can run it.)
 - Errors: `channelIdentitySetEnabled: auth_address required`, `channelIdentitySetEnabled: enabled (bool) required`, `unknown identity <address>`.
 
 ### channelIdentityStatus
@@ -556,7 +558,7 @@ Reads the array form `[{...}]` or a bare object.
 | `state` | string | The setup state, as in the [setup object](#channelidentitysetup). |
 | `summary` | string | For example `"channels: published"`. |
 | `detail` | string | For `published`, the bundle path and peer count. For `pending` and `failed`, the error. |
-| `actions` | array | Each `{cmd, params, label}`: `channelIdentitySetup` ("Retry setup") in the `keys`, `pending` and `failed` states, and always `channelIdentitySetEnabled` ("Turn channels off" or "Turn channels on"). |
+| `actions` | array | Each `{cmd, params, label}`: `channelIdentitySetup` ("Retry setup") in the `keys`, `pending` and `failed` states, and always `channelIdentitySetEnabled` ("Turn channels off" or "Turn channels on"), which needs `ADMIN`. |
 
 ```js
 var status = await epixFrame.cmd("channelIdentityStatus", []);

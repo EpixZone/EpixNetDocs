@@ -64,7 +64,7 @@ Nothing here is required. A xite is plain HTML, CSS and JavaScript, and the node
 
 | Name | What it is for | Language | Footprint | How to get it | Repository |
 | --- | --- | --- | --- | --- | --- |
-| **EpixFrame** | Talking to the node from a xite page: commands, events, wrapper handshake | JavaScript (UMD and ES module builds), TypeScript declarations | One file, about 9 KB minified or 19 KB unminified, no dependencies | Copy a file from `dist/` at tag `v1.0.0` into your xite | [EpixZone/epixframe](https://github.com/EpixZone/epixframe) |
+| **EpixFrame** | Talking to the node from a xite page: commands, events, wrapper handshake | JavaScript (UMD and ES module builds), TypeScript declarations | One file, about 12 KB minified or 29 KB unminified, no dependencies | Copy a file from `dist/` at tag `v1.1.0` into your xite | [EpixZone/epixframe](https://github.com/EpixZone/epixframe) |
 | **EpixKit** | Connecting an EVM wallet (Epix Wallet, MetaMask, Rabby and others) to a xite | JavaScript (one script, global `EpixKit`) | One file, about 18 KB unminified, no dependencies | Copy `epixkit.js` at a pinned commit (the repository has no tagged releases) | [EpixZone/epixkit](https://github.com/EpixZone/epixkit) |
 | **create-react-epixnet-app** | Scaffolding a React xite | Bash, Create React App | Not applicable | Not usable as published, see [Frameworks and bundlers](react.md) | [EpixZone/create-react-epixnet-app](https://github.com/EpixZone/create-react-epixnet-app) |
 | **epix-tipping** | Tipping content creators in native EPIX, with on-chain stats and xID lookups | Solidity 0.8.24, Foundry | 3 source files | Clone, or copy the ABI fragments you need | [EpixZone/epix-tipping](https://github.com/EpixZone/epix-tipping) |
@@ -136,7 +136,7 @@ Keep a short `README.md` next to the vendored files that states where each one c
 ```markdown title="js/lib/README.md"
 | File | Source | SHA-256 |
 | --- | --- | --- |
-| `epixframe.min.js` | epixframe, tag v1.0.0, dist/epixframe.min.js | `<sha256>` |
+| `epixframe.min.js` | epixframe, tag v1.1.0, dist/epixframe.min.js | `<sha256>` |
 | `epixkit.js` | epixkit, commit <commit>, epixkit.js | `<sha256>` |
 | `ethers.umd.min.js` | ethers 6.13.4, UMD build | `<sha256>` |
 ```
@@ -195,9 +195,9 @@ For what these xites do from a user's point of view, see [Featured xites](../sta
 
 ## Versions and stability
 
-- **EpixFrame** has one tag, `v1.0.0`. The `main` branch carries a small later change to history state handling. The package is not published to the npm registry.
+- **EpixFrame** is at `v1.1.0`. Xites that vendor 1.0.x should update: 1.1.0 fixes helpers that did not match the node (see [Upgrading from 1.0.x](epixframe.md#upgrading-from-10x)). The package is not published to the npm registry.
 - **EpixKit** has no tags. Pin the commit you copied.
 - **The contract kits** are examples and starting points. Read [Contract kits](contracts.md) for which deployed addresses are published.
 - **The UI kit** has no version number. Copy the two CSS files together, since the component file depends on the token file.
 
-When a library and the node disagree, the node wins. The [EpixFrame API reference](../api/index.md) documents what the current node implements, and the [EpixFrame guide](epixframe.md#known-gaps) lists the places where the library's helpers lag behind it.
+When a library and the node disagree, the node wins. The [EpixFrame API reference](../api/index.md) documents what the current node implements, and the [EpixFrame guide](epixframe.md#upgrading-from-10x) lists the helpers that 1.1.0 brought in line with it.

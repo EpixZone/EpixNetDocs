@@ -91,7 +91,7 @@ Only the wrapper's prompt can grant a permission. A page asks with `wrapperPermi
 
 ### Request a grant
 
-Check the current permissions first. The wrapper does not answer a request for a permission that is already granted, and it does not answer when the user dismisses the prompt, so a naive `await` can wait forever.
+Check the current permissions first. The wrapper does not answer a string request for a permission that is already granted. EpixNet v0.6.8 also sends no answer when the user dismisses the prompt (later releases answer `{error: "cancelled"}`), so a naive `await` can wait forever. The helper below works with both.
 
 ```js title="js/permissions.js"
 // Resolves true once the permission is held, false if the user does not grant it.
@@ -233,14 +233,14 @@ Treat every subject, body and name as untrusted text. Insert it with `textConten
 
 ### Command summary
 
-All commands are refused without a channel grant. A `Channels:<app>` client is confined to its own app for thread lists, sent mail, search, sends and conversation commands, and asking for another app is an error. `channelContacts` is the exception: it collects peers from the 500 most recent unarchived threads of every app. A full grant reads every app by default and sends as `mail` by default.
+All commands are refused without a channel grant, and on a public gateway they are refused for every page (`Channels are unavailable on public gateways`). A `Channels:<app>` client is confined to its own app for thread lists, contacts, sent mail, search, sends and conversation commands, and asking for another app is an error. A full grant reads every app by default and sends as `mail` by default.
 
 | Command | Parameters | Result |
 | --- | --- | --- |
 | `channelSessionInfo` | `[{app?}]` | Session object described above |
 | `channelSubscribe` | `[{app?}]` | `{ok, app}` and registers the xite for `channelEvent` |
 | `channelKeyLookup` | `[[xid, ...]]` | Map of xID to `{has_bundle, revoked, devices}` |
-| `channelContacts` | `[]` | List of `{xid}` for peers in existing threads |
+| `channelContacts` | `[{app?}]` | List of `{xid}` for peers in existing threads of the app in scope |
 | `channelSend` | `[recipients, subject, body, {conv_id?, app?}]` | `{ok, conv_id, recipients, envelopes, delivery}` |
 | `channelThreads` | `[{folder?, offset?, limit?, app?}]` | `{threads}`, newest first. `folder` is `all` (every unarchived conversation, the default), `starred` or `archived` |
 | `channelSent` | `[{offset?, limit?, app?}]` | `{messages}`, your own sent messages, newest first |
@@ -252,9 +252,9 @@ All commands are refused without a channel grant. A `Channels:<app>` client is c
 | `channelRlnStatus` | `[]` | Admission and retention status, described below |
 | `channelIdentitySetup` | `[{auth_address?}]` | Re-runs key setup for the identity in scope |
 | `channelIdentityStatus` | `[{auth_address?}]` | Status object for the identity in scope, or `null` |
-| `channelIdentitySetEnabled` | `[auth_address, enabled]` | Turns channels on or off for one held identity |
+| `channelIdentitySetEnabled` | `[auth_address, enabled]` | Turns channels on or off for one held identity. Requires `ADMIN` |
 
-Commands that take an identity act as the one the xite currently uses. An explicit `{auth_address}` or `{xid}` in the first object parameter names another identity the node holds. Full parameter and result details are in the [messaging API reference](../api/messaging.md).
+Commands that take an identity act as the one the xite currently uses. With a full grant, an explicit `{auth_address}` or `{xid}` in the first object parameter names another identity the node holds. A `Channels:<app>` client can act only as its own xite's identity, and naming another one is an error. Full parameter and result details are in the [messaging API reference](../api/messaging.md).
 
 Read state, stars, archives and local deletion are per node. They are not synchronized between a user's devices.
 
@@ -562,6 +562,8 @@ The API does not expose private keys, arbitrary signing, arbitrary decryption or
 | `channels are not enabled` | The operator turned channels off | Explain that the node has private messages disabled |
 | `channels: this xite has no channel permission` | No `CHANNELS` or `Channels:<app>` grant | Request the grant from a user action |
 | `channels: this xite is scoped to app <app>` | A scoped client asked for another app | Use your own app name everywhere |
+| `channels: this xite cannot act as identity <name>` | A scoped client named an identity other than its xite's own | Leave out `auth_address` and `xid` |
+| `Channels are unavailable on public gateways` | The page is served by a gateway | Ask the user to open the xite on their own node |
 | `xID required: select or link an identity for this xite` | No identity is selected | Send the user to pick or link an xID |
 | `<name> has not published channel keys` | The recipient has no usable bundle on this node yet | Check with `channelKeyLookup` before sending |
 | `<name>'s identity has been revoked` | The chain reports the name as revoked | Do not retry |

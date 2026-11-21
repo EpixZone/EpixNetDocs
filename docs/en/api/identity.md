@@ -131,7 +131,7 @@ await epixFrame.cmd("identitySelect", { auth_address: "" });
 Notes:
 
 - The choice is stored for this xite only. It does not change the default or other xites. Changing the default is [`identitySetDefault`](admin.md#identitysetdefault), an `ADMIN` command.
-- Send an object or an array. A bare string is not read, so it counts as a missing value and the xite goes back to inheriting the default.
+- A bare string is read as `auth_address`. On EpixNet v0.6.8 a bare string is not read, so it counts as a missing value and the xite goes back to inheriting the default; send an object or an array if your xite must work there.
 - An address that is not a held identity is an error: `unknown identity <address>`. A value that is neither a string nor `null`: `identitySelect: auth_address must be a string or null`.
 - A change pushes the `cert_changed` event described at the top of this page.
 
@@ -199,7 +199,7 @@ Records an identity once the chain lists the address as an active linked identit
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| `auth_address` | string | yes | The address to record (position 0). Send an array or an object: a bare string is also read as `name`, and the call then fails. |
+| `auth_address` | string | yes | The address to record (position 0, or a bare string). On EpixNet v0.6.8 a bare string is also read as `name` and the call fails, so send an array or an object there. |
 | `name` | string | no | The xID name, such as `alice.epix` (position 1). Without it, the node asks the chain which name the address is linked to. Without a top-level part, `epix` is assumed. |
 
 **Returns:**
@@ -655,7 +655,7 @@ var ok = await epixFrame.verify(message, info.auth_address, signature);
 Notes:
 
 - With no identity selected and no key: `xID required: select or link an identity for this xite`.
-- Send an array or an object. A bare string is read as both `data` and `privatekey`, and signing then fails.
+- A bare string is read as `data`. On EpixNet v0.6.8 it is read as both `data` and `privatekey` and signing fails, so send an array or an object if your xite must work there.
 - Avoid handling private keys in page code. Let the node sign with the identity.
 - A missing `data` is an error: `ecdsaSign: data required`.
 
@@ -764,30 +764,33 @@ A mute hides an author's content on this node only, by leaving their files out o
 
 Adds an author to the node-wide mute list and rebuilds the databases so their content drops out of queries.
 
-**Permission:** none. The node asks for no confirmation.
+**Permission:** none, with a condition. Unless the calling xite holds `ADMIN`, the node asks the visitor to confirm in the wrapper ("Remove all content from ...?") and changes the list only when they click **Mute**. Refused on a public gateway.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
 | `auth_address` | string | yes | Which author to mute (position 0). Despite the name, the official xites pass the user directory name, for example `bob.epix`. See the notes. |
-| `cert_user_id` | string | no | A label shown in the mute list, for example `bob@xid.epix` (position 1). Default: empty. |
+| `cert_user_id` | string | no | A label shown in the mute list and in the confirmation, for example `bob@xid.epix` (position 1). Default: empty. |
 | `reason` | string | no | Why, shown in the mute list (position 2). Default: empty. |
 
 **Returns:** `"ok"`, after every database has been rebuilt.
 
 ```js
-// Like Epix Talk's "Mute this user" menu item, after asking the visitor.
-// The callback runs only when the visitor clicks Mute.
-epixFrame.cmd("wrapperConfirm", ["Hide everything from bob.epix on this node?", "Mute"], function () {
-  epixFrame.muteAdd("bob.epix", "bob@xid.epix", "Topic: Weekly thread");
-});
+// Like Epix Talk's "Mute this user" menu item. The node shows the
+// confirmation; the promise rejects if the visitor does not confirm.
+try {
+  await epixFrame.muteAdd("bob.epix", "bob@xid.epix", "Topic: Weekly thread");
+} catch (err) {
+  // err.error is "The mute list was not changed"
+}
 ```
 
 Notes:
 
-- **How matching works.** When the node builds a database, it skips every data file whose path contains the muted value as plain text. User files live under `data/users/<directory>/`, and the directory is named after the xID, so pass the directory name. Because the match is plain text, a short value can hide more than one author: muting `bob.epix` also hides `bigbob.epix`.
+- **How matching works.** When the node builds a database, it skips every data file whose path contains the muted value as whole directory names. User files live under `data/users/<directory>/`, and the directory is named after the xID, so pass the directory name. Muting `bob.epix` hides `data/users/bob.epix/` but not `data/users/bigbob.epix/`. A value with several segments, such as `data/blocked/`, matches that run of directories. An empty value mutes nothing. (On EpixNet v0.6.8 the match is plain text, so a short value can hide more than one author.)
 - **Files stay.** The author's files remain on disk and are still served and readable with `fileGet`. Only database queries stop returning them.
 - **It is node-wide.** The mute applies to every xite on the node, not only the one that called it. Rebuilding every database can take a while on a node with many xites.
-- **Ask first.** Because there is no confirmation, call it only in response to a clear action by the visitor.
+- **Confirmation.** A dismissed or unanswered confirmation fails with `The mute list was not changed`. EpixNet v0.6.8 asks for no confirmation, so on that release call it only in response to a clear action by the visitor, and ask first with [`wrapperConfirm`](wrapper.md#wrapperconfirm).
+- **Gateways.** On a public gateway the command fails with `muteAdd is disabled on this gateway`, except from the operator socket.
 - Mutes apply while the node's ContentFilter plugin is enabled. They stay stored while it is off.
 - A missing `auth_address` is an error: `muteAdd: auth_address required`.
 
@@ -795,7 +798,7 @@ Notes:
 
 Removes an author from the node-wide mute list and rebuilds the databases so their content returns.
 
-**Permission:** none. The node asks for no confirmation.
+**Permission:** none, with a condition. Unless the calling xite holds `ADMIN`, the node asks the visitor to confirm in the wrapper ("Unmute ...?"). Refused on a public gateway, except from the operator socket.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -807,7 +810,7 @@ Removes an author from the node-wide mute list and rebuilds the databases so the
 await epixFrame.muteRemove("bob.epix");
 ```
 
-A missing `auth_address` is an error: `muteRemove: auth_address required`.
+A missing `auth_address` is an error: `muteRemove: auth_address required`. A dismissed confirmation fails with `The mute list was not changed`, and a gateway answers `muteRemove is disabled on this gateway`. EpixNet v0.6.8 asks for no confirmation.
 
 ### FilterIncludeList
 
@@ -854,7 +857,7 @@ Returns the beacon of one block.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| `height` | number | yes | The block height (position 0, or the `height` key). A numeric string also works. A bare number is not read. |
+| `height` | number | yes | The block height (position 0, the `height` key, or a bare number). A numeric string also works. EpixNet v0.6.8 does not read a bare number. |
 
 **Returns:** `{"height": number, "beacon": string, "proposer": string, "timestamp": number}`, or `{"error": "..."}`. `proposer` is the consensus address of the block's proposer and `timestamp` the block time in Unix seconds.
 
@@ -935,7 +938,7 @@ var roll = 1 + Number(BigInt("0x" + values[0]) % 6n);
 ```
 
 !!! warning "Pass the beacon, not a height"
-    The EpixFrame helper is declared as `vrfDeriveRandom(height, seed, count)`, but the node reads its first argument as the beacon string. Passing a block height fails with `vrfDeriveRandom: beacon required`. Read the beacon first and pass `beacon.beacon`, as in the example.
+    The node reads the first argument as the beacon string. Passing a block height fails with `vrfDeriveRandom: beacon required`. Read the beacon first and pass `beacon.beacon`, as in the example. The EpixFrame helper takes the beacon too (`vrfDeriveRandom(beacon, seed, count)`); EpixFrame 1.0.x names that argument `height`, which is misleading.
 
 Notes:
 

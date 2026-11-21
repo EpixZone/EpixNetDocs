@@ -78,7 +78,7 @@ After every change the module recomputes a Merkle tree over all names and stores
 | **The precompile over EVM RPC** | You trust the RPC endpoint's answer | Anything next to a transaction: quotes, ownership checks, writes |
 | **The Cosmos REST API** (`/xid/v1/...`) | You trust the REST endpoint's answer | Listings the precompile does not offer, such as every name of an owner or the price tiers |
 
-Prefer the node commands for anything you display. They need no network code in your page, and their answers are verified. Forward lookups use the user's chain endpoint settings. A reverse lookup (address to name) is the exception: its first step, which only names a candidate name, always asks the node's built-in default REST endpoint, and the answer is then confirmed through the verified forward lookup.
+Prefer the node commands for anything you display. They need no network code in your page, and their answers are verified. Forward and reverse lookups use the user's chain endpoint settings (or `EPIX_XID_RPC_URL`), with failover between the configured endpoints. A reverse lookup (address to name) first asks for a candidate name, then confirms it through the verified forward lookup. (On EpixNet v0.6.8 that first step always asks the node's built-in default REST endpoint.)
 
 ## Reading through the node
 

@@ -98,7 +98,7 @@ Errors:
 
 Removes one or more hubs from the node, deletes their local files, and rebuilds the merged databases.
 
-**Permission:** `Merger:<type>`
+**Permission:** `Merger:<type>`. Each address must be a hub whose `content.json` declares a `merged_type` the calling xite holds `Merger:<type>` for.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -114,11 +114,13 @@ Notes:
 
 - Removal is local. The hub stays available on the network for as long as other peers hold it, and it can be added again later.
 - Deleting a hub removes the visitor's local copy of everything in it. Anything the visitor wrote there that no other peer holds is lost. Confirm with the visitor before you call it.
-- An address that is not on the node is skipped without an error.
+- The node checks every address before it removes any, so a refused address in a list leaves the others in place too.
+- An address that is not on the node, or that is not a hub of one of the caller's types, is refused. To remove any other xite, use [`siteDelete`](admin.md#sitedelete), an `ADMIN` command. (EpixNet v0.6.8 lets a merger xite remove any xite on the node, and skips an address that is not on the node.)
 
 Errors:
 
 - `Not a merger xite`
+- `Merged type (<type>) of <address> not in [<types>]` when the target is not a hub of the caller's types (`none` for a xite that declares no type or is not on the node)
 - `Xite commands take the epix1 address, not a name: <name>`
 - `Deleting xites is disabled on this node` when the operator has locked the node's xite set
 

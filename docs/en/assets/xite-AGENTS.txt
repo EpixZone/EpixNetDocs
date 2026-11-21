@@ -120,7 +120,7 @@ Commands used most often:
 | Private per-user settings kept by the node | `cmd("userGetSettings")`, `cmd("userSetSettings", [object])` | Object |
 | Address bar and history | `cmd("wrapperPushState", [state, title, "?Page:2"])` | |
 | Tab title | `cmd("wrapperSetTitle", "Title")` | |
-| Ask for a permission | `cmd("wrapperPermissionAdd", "Merger:<type>")` (a string, not an array) | The user decides in the wrapper. There is no answer if it is already granted, so check `siteInfo.settings.permissions` first. |
+| Ask for a permission | `cmd("wrapperPermissionAdd", "Merger:<type>")` (a string) | The user decides in the wrapper. There is no answer if it is already granted, so check `siteInfo.settings.permissions` first. Closing the prompt answers `{error: "cancelled"}` (no answer on EpixNet v0.6.8). |
 
 If you need a command that is not listed here, look it up in the EpixNet docs (API section) or the EpixFrame type definitions. Do not guess command names or parameters. An unknown command returns `null`, not an error.
 
@@ -187,7 +187,7 @@ The page's origin depends on how the visitor reaches the node. On a local node a
 | `localStorage`, `sessionStorage`, cookies | `wrapperGetLocalStorage` and `wrapperSetLocalStorage`, or `userGetSettings` and `userSetSettings`. Guard any direct access with `try` and `catch`. |
 | IndexedDB | JSON files plus `dbQuery` for shared data, wrapper storage for small local state |
 | Service workers | Nothing. The node already serves the files locally. |
-| `fetch` or XHR of the xite's own files | `fileGet`, or add the key from `wrapperGetAjaxKey` to the URL (EpixFrame's `monkeyPatchAjax()` covers XHR only) |
+| `fetch` or XHR of the xite's own files | `fileGet`, EpixFrame 1.1.0's `monkeyPatchAjax()`, or add the key from `wrapperGetAjaxKey` to the URL (EpixFrame 1.0.x's `monkeyPatchAjax()` covers XHR only) |
 | Reading another xite's files | `corsPermission`, then `fileGet` with a `cors-<address>/` path prefix |
 | A backend API of your own | Node commands. There is no server. |
 

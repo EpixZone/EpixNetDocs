@@ -10,7 +10,7 @@ Wrapper commands are handled by the wrapper, the trusted page the node serves ar
 
 - **They run in the browser.** Most need no round trip to the node and work the moment your page has loaded. The ones that read xite information (`wrapperGetLocalStorage`, `wrapperSetLocalStorage`, `wrapperPermissionAdd`, `evxRequest` and the web notification commands) wait until the wrapper has received the xite's `siteInfo` from the node.
 - **Parameters are read literally.** Where an entry says "array", send an array. The wrapper does not accept the named-object alternative that node commands offer.
-- **Many send no response.** Entries marked "no response" never answer, so a Promise returned by `cmd` or by an EpixFrame helper stays pending and a callback is never called. Call these without `await`.
+- **Many send no response.** Entries marked "no response" never answer, so a Promise returned by `cmd` stays pending and a callback is never called. Call these without `await`. The EpixFrame 1.1.0 helpers for these commands post the message and return a Promise that is already resolved (in 1.0.x their Promises never settle).
 - **Dialogs can be dismissed.** A confirmation or prompt that the visitor closes with its close button sends no response either.
 - **Dialog buttons need a real click.** The wrapper checks that the event on its buttons and inputs is a trusted user event, so a page cannot answer its own dialogs.
 
@@ -54,7 +54,7 @@ No parameters.
 **Returns:** no response.
 
 ```js
-// The helper returns a Promise that never settles; do not await it.
+// No response: the helper resolves at once (in EpixFrame 1.0.x, never).
 epixFrame.innerLoaded();
 ```
 
@@ -165,7 +165,7 @@ epixFrame.cmd("wrapperConfirm", ["Are you sure you want to delete this post?", "
 
 Notes:
 
-- The `confirm(message)` helper sends only the message, so the button reads "ok". It resolves with `1`, not with `true`.
+- The `confirm(message)` helper sends only the message, so the button reads "ok". In EpixFrame 1.1.0 it resolves with `true`. The 1.0.x helper resolves with `1`.
 - An open confirmation is identified by its caption. Raising a second one with the same caption replaces the first, and the first never answers.
 
 ### wrapperPrompt
@@ -191,8 +191,8 @@ epixFrame.cmd("wrapperPrompt", ["Reason for the report (optional):", "text", "Se
 });
 ```
 
-!!! warning "The `prompt()` helper and the button label"
-    `epixFrame.prompt(message, type, placeholder)` sends its third argument in position 2, which the wrapper reads as the button caption, not as the placeholder. Use the raw command when you want both a caption and a placeholder.
+!!! note "The `prompt()` helper"
+    In EpixFrame 1.1.0 the helper is `prompt(message, type, caption, placeholder)`, in the wrapper's order. The 1.0.x helper is `prompt(message, type, placeholder)` and sends its third argument in position 2, which the wrapper reads as the button caption. With 1.0.x, use the raw command when you want a placeholder.
 
 ### wrapperProgress
 
@@ -503,8 +503,8 @@ await epixFrame.cmd("wrapperSetLocalStorage", { theme: "dark", drafts: {} });
 var stored = await epixFrame.cmd("wrapperGetLocalStorage"); // { theme: "dark", drafts: {} }
 ```
 
-!!! warning "The `setLocalStorage()` helper wraps the value in an array"
-    `epixFrame.setLocalStorage(data)` sends `[data]`, and the wrapper stores that array. `getLocalStorage()` then returns `[data]`, not `data`. Either read index `0` of the result, or use the raw command for both directions as shown above. Do not mix the two styles in one xite.
+!!! note "Values stored by EpixFrame 1.0.x"
+    In EpixFrame 1.1.0, `setLocalStorage(data)` sends `data` as given, like the raw command. The 1.0.x helper sends `[data]`, so values a 1.0.x build stored read back as `[data]` through the raw command. The 1.1.0 `getLocalStorage()` unwraps a one-element array, so after you update the library, existing values read back as written.
 
 There is no partial update: read the value, change it and store it again. Browser storage limits apply.
 
@@ -523,13 +523,13 @@ No parameters.
 var key = await epixFrame.cmd("wrapperGetAjaxKey");
 var res = await fetch("data/data.json?ajax_key=" + encodeURIComponent(key));
 
-// Or patch XMLHttpRequest once, before the first request:
-await epixFrame.monkeyPatchAjax();
+// Or let EpixFrame add it to fetch and XHR for the node's own host:
+epixFrame.monkeyPatchAjax();
 ```
 
 Notes:
 
-- `monkeyPatchAjax()` replaces `XMLHttpRequest.prototype.open` so that the key is appended to XHR URLs automatically. It also replaces `window.fetch`, but in the current EpixFrame build that wrapper forwards the original URL, so add the key to `fetch` URLs yourself. Wait for its Promise before the first request.
+- In EpixFrame 1.1.0, `monkeyPatchAjax()` adds the key to `fetch` and `XMLHttpRequest` requests for the node's own host (relative URLs and URLs whose host is `location.host`) and never to other hosts. Requests made before the key arrives wait for it. In EpixFrame 1.0.x it adds the key to XHR only, on every host, and only after its Promise resolves, so add the key to `fetch` URLs yourself.
 - On a separate content origin (EpixNet Browser, or a regular browser on the same machine) a request without the key also succeeds. Appending the key there does no harm, so patch unconditionally and your xite works in every mode.
 - The key authorizes reads of this xite's files, and of another xite's files only when this xite holds `Cors:<address>` for it.
 - You can avoid the question entirely by reading files with [`fileGet`](files.md#fileget).
@@ -544,9 +544,9 @@ Asks the visitor to grant the xite a permission. The wrapper shows a prompt with
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| (value) | string | yes | The permission name. Pass the string itself. |
+| (value) | string or array | yes | The permission name, as a string or as a one-element array such as `["Merger:EpixPost"]`. The two forms differ only when the permission is already granted. |
 
-The node accepts these names: `ADMIN`, `NOSANDBOX`, `CHANNELS`, `LOCAL_PROFILE`, `Merger:<type>` and `Channels:<app>`. The part after `Merger:` or `Channels:` must start with a letter or digit, be at most 128 characters long and contain only letters, digits, `_`, `.` and `-`. What each permission allows is described in [The wrapper sandbox](../build/sandbox.md).
+The node accepts these names: `ADMIN`, `NOSANDBOX`, `CHANNELS`, `LOCAL_PROFILE`, `Merger:<type>` and `Channels:<app>`. The part after `Merger:` must start with a letter or digit, be at most 128 characters long and contain only letters, digits, `_`, `.` and `-`. The part after `Channels:` must be 1 to 32 characters of lowercase letters, digits, `_` and `-` (EpixNet v0.6.8 applies the `Merger:` rule to both). What each permission allows is described in [The wrapper sandbox](../build/sandbox.md).
 
 **Returns:**
 
@@ -554,8 +554,9 @@ The node accepts these names: `ADMIN`, `NOSANDBOX`, `CHANNELS`, `LOCAL_PROFILE`,
 | --- | --- |
 | The visitor clicks **Grant** | `"ok"`. The node also pushes a `setSiteInfo` event with the new `settings.permissions`. |
 | The visitor clicks **Grant**, but the node does not accept the name | `{"error": "Unknown or malformed permission: <name>"}` |
-| The xite already holds the permission | No response. |
-| The visitor closes the prompt | No response. |
+| The xite already holds the permission, request sent as a string | No response. |
+| The xite already holds the permission, request sent as an array | `"ok"`, and no prompt is shown. EpixNet v0.6.8 does not recognize the array form here and asks the visitor again. |
+| The visitor closes the prompt | `{"error": "cancelled"}`. EpixNet v0.6.8 sends no response. |
 | The node is a public gateway | `{"error": "Permissions cannot be granted on a public gateway"}`, and no prompt is shown. |
 
 ```js
@@ -572,9 +573,9 @@ ensurePermission("Merger:EpixPost", startFeed);
 
 Notes:
 
-- Because two of the outcomes send no response, check `siteInfo().settings.permissions` before asking, and never block the page on the answer.
-- Pass a string. The `requestPermission(permission)` helper sends `[permission]`; the grant still works, but the wrapper's "already granted" check does not recognize the array form, so the visitor is asked again.
-- A page that sends the node command `permissionAdd` directly gets the same prompt: the wrapper routes it here. See [Admin commands](admin.md#permissionadd).
+- Because a string request for a granted permission gets no response (and on EpixNet v0.6.8 neither does a closed prompt), check `siteInfo().settings.permissions` before asking, and never block the page on the answer.
+- The `requestPermission(permission)` helper in EpixFrame 1.1.0 sends the string. The 1.0.x helper sends `[permission]`, which EpixNet v0.6.8 asks for again when it is already granted.
+- A page that sends the node command `permissionAdd` directly gets the same prompt: the wrapper routes it here, and answers `"ok"` when the permission is already granted. See [Admin commands](admin.md#permissionadd).
 - Read access to another xite's files (`Cors:<address>`) is requested with [`corsPermission`](files.md#corspermission) instead.
 
 ### evxRequest

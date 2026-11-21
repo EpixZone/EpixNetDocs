@@ -20,7 +20,7 @@ A [permission](#permission) that lets a xite administer the whole node: change s
 
 ### ajax_key
 
-A random secret the node keeps for each xite. A page obtains it from the [wrapper](#wrapper) with `wrapperGetAjaxKey` and adds it to its own HTTP requests for xite files, so that they are accepted from a sandboxed origin. EpixFrame's `monkeyPatchAjax()` adds it to `XMLHttpRequest` requests but not to `fetch`. It is never included in `siteInfo` or other data a page can read back. See [Sandbox and security](../build/sandbox.md).
+A random secret the node keeps for each xite. A page obtains it from the [wrapper](#wrapper) with `wrapperGetAjaxKey` and adds it to its own HTTP requests for xite files, so that they are accepted from a sandboxed origin. EpixFrame's `monkeyPatchAjax()` adds it to `fetch` and `XMLHttpRequest` requests for the node's own host (EpixFrame 1.0.x: to `XMLHttpRequest` only). It is never included in `siteInfo` or other data a page can read back. See [Sandbox and security](../build/sandbox.md).
 
 ### Announce
 

@@ -100,7 +100,7 @@ Rpc.init(net);
 ```
 
 !!! note "Keep the ajax_key away from external endpoints"
-    EpixFrame's `monkeyPatchAjax()` adds your xite's `ajax_key` to `XMLHttpRequest` URLs so the page can read its own files from an opaque origin (see [Fetching your own files](../build/sandbox.md#fetching-your-own-files)). The patch does not look at where a request is going. In a xite that also talks to RPC or REST endpoints, prefer `fileGet` for your own files over patching, so that key never travels to a third party.
+    EpixFrame's `monkeyPatchAjax()` adds your xite's `ajax_key` to request URLs so the page can read its own files from an opaque origin (see [Fetching your own files](../build/sandbox.md#fetching-your-own-files)). From EpixFrame 1.1.0 it adds the key only to requests for the node's own host, so RPC and REST calls never carry it. The 1.0.x patch adds it to every `XMLHttpRequest`, wherever it is going: if you still ship 1.0.x in a xite that talks to RPC or REST endpoints, prefer `fileGet` for your own files over patching, or update the library.
 
 A read then looks like this:
 

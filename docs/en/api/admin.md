@@ -74,7 +74,7 @@ A node in restricted mode (`serverInfo().ui_restrict` is `true`) is a public gat
 
 `announcerStats`, `channelJoinAllsite`, `chartDbQuery`, `chartGetPeerLocations`, `feedQuery`, `feedSearch`, `notificationCount`, `notificationQuery`, `optionalLimitStats`, `serverPortcheck`, `sidebarGetHtmlTag`, `sidebarGetPeers`, `siteList`.
 
-The wrapper-only commands are refused there too, as are the global form of [`networkRetry`](#networkretry), `corsPermission` and the local profile commands. The admin socket is the sanctioned way to change a gateway.
+The wrapper-only commands are refused there too, as are the global form of [`networkRetry`](#networkretry), `corsPermission`, `muteAdd`, `muteRemove`, the channel commands and the local profile commands. The admin socket is the sanctioned way to change a gateway.
 
 ### Other gates
 
@@ -385,7 +385,7 @@ Sets the node-wide cap on optional file storage. When downloaded optional files 
 await epixFrame.cmd("optionalLimitSet", "10%");
 ```
 
-The node stores the string without validating it and reads only its digits and decimal point, so `"500M"` would mean 500 GB. Convert other units yourself: the Dashboard turns `500M` into `"0.48828125"` before sending.
+The node accepts only a plain number of gigabytes (`"5"`, `"0.5"`) or a percentage from `"0%"` to `"100%"`. Anything else, such as a unit suffix (`"500M"`) or a negative number, is refused with `Invalid optional files limit ...`. Convert other units yourself: the Dashboard turns `500M` into `"0.48828125"` before sending. (EpixNet v0.6.8 stores any string and reads only its digits and decimal point, so there `"500M"` means 500 GB.)
 
 ## Ownership and keys
 
@@ -525,7 +525,7 @@ epix-server siteCmd <address> permissionAdd '"LOCAL_PROFILE"'
 Notes:
 
 - A page that sends `permissionAdd` does not reach the node: the wrapper routes it to the same prompt as `wrapperPermissionAdd`. A forwarded page id is refused with `permissionAdd requires the wrapper's permission prompt`.
-- The suffix of `Merger:` and `Channels:` must start with a letter or digit, be at most 128 characters, and use only letters, digits, `_`, `.` and `-`. Anything else is refused with `Unknown or malformed permission: ...`.
+- The suffix of `Merger:` must start with a letter or digit, be at most 128 characters, and use only letters, digits, `_`, `.` and `-`. The suffix of `Channels:` must be 1 to 32 characters of lowercase letters, digits, `_` and `-` (EpixNet v0.6.8 applies the `Merger:` rule to both). Anything else is refused with `Unknown or malformed permission: ...`.
 - A `Merger:` grant rebuilds the merger databases before the answer, so the page can query merged data right away.
 - `Cors:<address>` is not granted this way. It has its own command, [`corsPermission`](files.md#corspermission).
 
@@ -793,8 +793,8 @@ epixFrame.on("request", function (cmd, message) {
 Notes:
 
 - Each `logLineAdd` event carries `{"stream_id": <number>, "lines": ["<formatted line>"]}`.
-- The events go to every open connection, not only to the one that opened the stream, so match them by `stream_id`.
-- A stream stays open until it is removed. Close it with [`consoleLogStreamRemove`](#consolelogstreamremove) when your panel closes.
+- The events go only to the connection that opened the stream. Match them by `stream_id` if you open more than one. (On EpixNet v0.6.8 they go to every open connection.)
+- A stream stays open until it is removed or its connection closes. Close it with [`consoleLogStreamRemove`](#consolelogstreamremove) when your panel closes.
 
 ### consoleLogStreamRemove
 
@@ -806,7 +806,7 @@ Closes a live log stream.
 | --- | --- | --- | --- |
 | `stream_id` | number | yes | The id from `consoleLogStream` (position 0). |
 
-**Returns:** `"ok"`, also for an id that is not open.
+**Returns:** `"ok"`, also for an id that is not open. A connection can close only its own streams.
 
 ```js
 await epixFrame.cmd("consoleLogStreamRemove", { stream_id: stream.stream_id });

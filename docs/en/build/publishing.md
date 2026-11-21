@@ -200,6 +200,7 @@ A good template starts clean, without your posts and users. The node supports th
 - A path containing `-default` is the starting state. `data-default/` in the source becomes `data/` in the clone, and `settings.json-default` becomes `settings.json`.
 - The source's live counterpart (`data/`) is **not** copied when a `-default` variant exists.
 - If `content.json-default` exists, it is used as the clone's manifest instead of your live `content.json`. Use it to give clones sensible metadata and rules.
+- A `template-` directory without its own `content.json-default` borrows the root `content.json`, but the clone starts with `description`, `favicon`, `ignore` and the other descriptive and pattern fields empty, and without `order_policy`, `distribution` or `postmessage_nonce_security`. **Create new xite** produces such a clone. (EpixNet v0.6.8 copies those fields from the source.)
 - The `-default` files are copied too, so a clone can itself be cloned.
 
 A typical cloneable xite therefore has:

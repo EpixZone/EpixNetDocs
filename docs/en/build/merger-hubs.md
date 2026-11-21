@@ -71,7 +71,7 @@ function requestMergerPermission(onGranted) {
 
 Three things to know:
 
-- **Check before you ask.** If the permission is already granted, the wrapper does not answer the request at all, so a callback that waits for it never runs. Read `siteInfo.settings.permissions` first, as the example does.
+- **Check before you ask.** If the permission is already granted, the wrapper does not answer a string request at all, so a callback that waits for it never runs. Read `siteInfo.settings.permissions` first, as the example does.
 - **Explain the prompt.** The dialog text is generic: "Allow this xite to read and list other xites of a given type". Tell the visitor why you need it before you trigger it. Epix Post introduces the request on its onboarding card.
 - **Public gateways refuse.** A node running as a read-only gateway grants no permissions. Your page receives an error and should fall back to a read-only message.
 
@@ -85,7 +85,7 @@ Three commands manage which hubs the node holds. All of them require the `Merger
 | --- | --- | --- |
 | `mergerSiteList` | `query_site_info` (boolean, default `false`) | An object keyed by hub address. Values are the hub's `merged_type`, or the hub's full `siteInfo` when the argument is `true`. |
 | `mergerSiteAdd` | One address, or a list of addresses | `"ok"` at once. The download continues in the background. |
-| `mergerSiteDelete` | One address, or a list | `"ok"`. The hub is removed from this node and its local files are deleted. |
+| `mergerSiteDelete` | One address, or a list | `"ok"`. The hub is removed from this node and its local files are deleted. Only hubs of the merger's own types can be removed. |
 
 ```js
 // Which hubs are here, with titles and peer counts?

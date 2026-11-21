@@ -134,7 +134,7 @@ You have two options.
     }
     ```
 
-    EpixFrame's `monkeyPatchAjax()` adds the key to every `XMLHttpRequest` automatically, which helps libraries that use XHR. Do not rely on it for `fetch`: in the current EpixFrame build the patched `fetch` forwards the original URL, so the key is not added. See [EpixFrame known gaps](../libraries/epixframe.md#known-gaps).
+    EpixFrame 1.1.0's `monkeyPatchAjax()` does this for you. It adds the key to every `fetch` and `XMLHttpRequest` for the node's own host, including those made by libraries, and never to other hosts. EpixFrame 1.0.x adds the key to XHR only (on every host), so with 1.0.x keep the helper above for `fetch`. See [Fetching your own files](../libraries/epixframe.md#fetching-your-own-files) in the EpixFrame guide.
 
 A keyless `fetch("data.json")` succeeds on a separate content origin and fails in path mode. That difference is the most common reason a xite works for its author and breaks for a gateway visitor.
 
@@ -208,7 +208,7 @@ A xite starts with no permissions. Each one is granted by the user in the wrappe
 | `Channels:<app>` | Read and send private messages in one named app channel | `wrapperPermissionAdd` |
 | `LOCAL_PROFILE` | Create a local profile for this xite and exchange public and private group messages | `wrapperPermissionAdd` |
 
-The suffix after `Merger:` or `Channels:` must start with a letter or digit, be at most 128 characters, and contain only letters, digits, `_`, `.` and `-`. Any other permission string is rejected. In particular, EVX execution is not a permission: it has its own consent dialog, described in [EVX programs](evx.md).
+The suffix after `Merger:` must start with a letter or digit, be at most 128 characters, and contain only letters, digits, `_`, `.` and `-`. The app name after `Channels:` must be 1 to 32 characters of lowercase letters, digits, `_` and `-`, the rule the channel commands apply to `app`. (EpixNet v0.6.8 applies the `Merger:` rule to both.) Any other permission string is rejected. In particular, EVX execution is not a permission: it has its own consent dialog, described in [EVX programs](evx.md).
 
 !!! danger "ADMIN and NOSANDBOX are full trust"
     A xite with `ADMIN` can administer the node. A xite with `NOSANDBOX` in path mode runs as the wrapper's own origin, which lets it open the node's WebSocket with the wrapper's authority. The prompt for both tells the user to trust the developer before accepting. Almost no xite needs either. On a separate content origin you already have browser storage without `NOSANDBOX`.
@@ -228,8 +228,8 @@ epixFrame.cmd("wrapperPermissionAdd", "Merger:EpixPost", (result) => {
 
 Behaviors to plan for:
 
-- **Already granted:** the wrapper sends no answer. Check `siteInfo().settings.permissions` before asking.
-- **Dismissed prompt:** the wrapper sends no answer. Use a timeout, or react to `setSiteInfo` instead of awaiting the reply.
+- **Already granted:** a request sent as a string gets no answer. From the release after v0.6.8, a request sent as a one-element array (`["Merger:EpixPost"]`) is answered `"ok"`. Either way, check `siteInfo().settings.permissions` before asking.
+- **Dismissed prompt:** from the release after v0.6.8, the wrapper answers `{error: "cancelled"}` when the user closes the prompt. EpixNet v0.6.8 sends no answer, so if you support it, use a timeout, or react to `setSiteInfo` instead of awaiting the reply.
 - **Public gateway:** the wrapper answers `{error: "Permissions cannot be granted on a public gateway"}` and shows nothing.
 - **A raw `permissionAdd` from a page** is routed through the same prompt. The node refuses a grant that does not come from the wrapper or the operator.
 
@@ -245,7 +245,7 @@ A complete helper that handles all four cases is in [Channels and local profiles
 
 `ADMIN` lets a page run the administrative command set. It does not confer wrapper authority: an `ADMIN` xite still cannot grant permissions or EVX consent on its own. The administrative commands are listed in the [admin API reference](../api/admin.md).
 
-On a public gateway the node refuses writes that need ownership, refuses all grants, and answers only a read-only subset of administrative commands.
+On a public gateway the node refuses writes that need ownership, refuses all grants, refuses the channel and mute list commands, and answers only a read-only subset of administrative commands.
 
 ## Content Security Policy
 

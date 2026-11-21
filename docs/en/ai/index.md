@@ -78,7 +78,7 @@ Three facts about signing explain this pattern:
 
 - **Everything in the folder is published unless `ignore` excludes it.** That includes `AGENTS.md`, tests, notes and anything else an agent creates.
 - **Only files whose own name starts with a dot are skipped automatically.** A file inside a dot directory, such as `.git/config` or `.claude/settings.json`, is signed unless the directory is excluded. `\\.git` also covers `.github/`. See [What signing always skips](../build/content-json.md#what-signing-always-skips).
-- **A xite created with `epix-server siteCreate` starts with an empty `ignore`.** A xite created from the Dashboard inherits a pattern that already excludes `.git`. Check before your first signature.
+- **A new xite starts with an empty `ignore`.** That holds whether you create it from the Dashboard or with `epix-server siteCreate`, so set `ignore` yourself before your first signature. (On EpixNet v0.6.8 a xite created from the Dashboard inherits the Dashboard's own pattern instead. Replace it with yours.)
 
 Publishing your tests and context file is a legitimate choice (the official xites publish their `README.md` and tests). Decide deliberately.
 
@@ -432,7 +432,7 @@ Each of these comes from a habit that is correct on the ordinary web. The contex
 | Mistake | What you see | Fix |
 | --- | --- | --- |
 | Using `localStorage`, `sessionStorage` or cookies | Works on your node, throws for visitors on a gateway or LAN address, where the page has an opaque origin | `wrapperGetLocalStorage` and `wrapperSetLocalStorage`, or `userGetSettings` and `userSetSettings`. Guard any direct access with `try` and `catch`. See [The wrapper sandbox](../build/sandbox.md). |
-| `fetch("data/x.json")` for the xite's own files | Works on your node, blocked in an opaque origin, because the request lacks the xite's `ajax_key` | `fileGet`, or add the key from `wrapperGetAjaxKey` to the URL (EpixFrame's `monkeyPatchAjax()` covers XHR only) |
+| `fetch("data/x.json")` for the xite's own files | Works on your node, blocked in an opaque origin, because the request lacks the xite's `ajax_key` | `fileGet`, EpixFrame 1.1.0's `monkeyPatchAjax()`, or add the key from `wrapperGetAjaxKey` to the URL. (In EpixFrame 1.0.x `monkeyPatchAjax()` covers XHR only.) |
 | Absolute or root-relative URLs such as `/js/app.js` | Works where the xite has its own origin, 404 through a LAN address or gateway, where the xite is served under `/<address>/` and the path points at the node's root | Relative URLs only. See [Links and relative URLs](../build/anatomy.md#links-and-relative-urls). |
 | Loading libraries or fonts from a CDN | The node does not block it, so it appears to work. It fails offline and on restricted routes, reveals each visitor to a third party, and runs code that is not covered by your signature. | Vendor every dependency into `js/lib/`, as the official xites do |
 | Registering a service worker | Registration fails in an opaque origin. It is also unnecessary: the node already serves the files locally. | Remove it, or guard it and treat failure as normal |

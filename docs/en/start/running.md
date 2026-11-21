@@ -400,6 +400,7 @@ Details:
 
 - `siteCreate` saves the new private key in your data folder as well as printing it. Save the printed key somewhere safe: it is required to modify the xite.
 - `siteSign` uses the key saved at `siteCreate` when you do not pass one. `inner_path` defaults to `content.json`; give another path to sign a different content file, such as a user's content file. To pass an `inner_path` without a key, put an empty string (`""`) in the key position.
+- Offline `siteCreate` and `siteSign` work in a data folder that a node has already used. On EpixNet v0.6.8 they fail there with `Could not commit signed root`, and `siteCreate` leaves an unsigned stub xite behind, so on that release create the xite from the Dashboard, or sign with the node running.
 - `--full` hashes every file again instead of trusting the sign cache. `--keep-missing` keeps declared optional files whose file is gone from disk; by default they are removed from the manifest.
 - You do not need to stop the node to sign. When a node is running, `siteSign` asks that node to do the signing, so its content store registers the new version and peers can fetch it straight away.
 - `sitePublish` does not sign. Run `siteSign` first. With the node stopped it can only dial clearnet peers directly, and it reports an error when no peer is reachable; the update then spreads on the next sync.

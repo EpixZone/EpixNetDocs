@@ -425,9 +425,9 @@ everything that depends on the Internet.
 Check every HTML, CSS and JavaScript file, including vendored libraries, for:
 - localStorage, sessionStorage, document.cookie, indexedDB, caches and
   navigator.serviceWorker used without a guard and a fallback;
-- fetch for the xite's own files without the key from wrapperGetAjaxKey in
-  the URL (EpixFrame's monkeyPatchAjax() adds it to XMLHttpRequest only), or
-  XMLHttpRequest sent before monkeyPatchAjax() has resolved;
+- fetch or XMLHttpRequest for the xite's own files with neither the key from
+  wrapperGetAjaxKey in the URL nor EpixFrame 1.1.0's monkeyPatchAjax() (the
+  1.0.x patch covers XMLHttpRequest only, and only after it has resolved);
 - URLs that start with "/" or include a host for the xite's own files;
 - anything loaded from another host: scripts, styles, fonts, images, iframes;
 - window.parent, window.top or window.opener access beyond postMessage;

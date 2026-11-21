@@ -293,7 +293,7 @@ Moderation is a set of owner-signed rules and records. Every node applies them i
 
 **Settings your admins edit.** For data that several admins change, such as a pinned list or a moderator roster, put the file under its own owner-governed manifest and write it with [`fileWriteSign`](files.md#signed-file-writes), which rejects stale edits.
 
-**Local mutes.** `muteAdd` hides an author on this node only, by leaving their files out of the local database. It changes nothing for anyone else.
+**Local mutes.** `muteAdd` hides an author on this node only, by leaving their files out of the local database. Unless the xite holds `ADMIN`, the node asks the visitor to confirm first. It changes nothing for anyone else.
 
 !!! warning "Limits of moderation"
     These tools control what participating nodes accept and index from now on. They do not erase copies that already replicated, older versions, backups or exports, and they do not bind software that ignores the rules. Do not promise users that deletion is complete.
