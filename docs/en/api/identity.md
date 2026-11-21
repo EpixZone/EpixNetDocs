@@ -925,7 +925,7 @@ Derives deterministic values from a beacon and a seed of your choice. It runs in
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| `beacon` | string | yes | The beacon value, as the hex string the beacon commands return (position 0). |
+| `beacon` | string | yes | The beacon value, as the hex string the beacon commands return (position 0, or a bare string, which leaves `seed` empty). On EpixNet v0.6.8 a bare string is also used as the seed. |
 | `seed` | string | no | Your application seed (position 1). Default: empty. |
 | `count` | number | no | How many values (position 2). Default `1`. |
 

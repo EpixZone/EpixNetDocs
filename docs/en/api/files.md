@@ -503,18 +503,17 @@ Deletes the local copy of an optional file to free space. The file stays declare
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| `inner_path` | string | yes | The optional file (position 0). |
+| `inner_path` | string | yes | The optional file (position 0, or a bare string). |
 | `address` | string | no | Another xite that holds the file (position 1). Without it, `cors-` and `merged-` prefixes in `inner_path` are honored. |
 
 **Returns:** `"ok"`. A file that was already gone also returns `"ok"`.
 
 ```js
-// Send an array. See the warning below.
-await epixFrame.cmd("optionalFileDelete", ["data/users/alice.epix/photo.jpg"]);
+await epixFrame.optionalFileDelete("data/users/alice.epix/photo.jpg");
 ```
 
-!!! warning "Do not pass a bare string"
-    When the whole parameter is a single string, the node reads that string as both `inner_path` and `address`, and the call fails with `Forbidden`. `epixFrame.optionalFileDelete(path)` sends a bare string, so call `cmd` with an array or an object instead.
+!!! note "A bare string on EpixNet v0.6.8"
+    On v0.6.8 the node reads a bare string as both `inner_path` and `address`, and the call fails with `Forbidden`. `epixFrame.optionalFileDelete(path)` sends a bare string, so if your xite must work on v0.6.8, call `cmd("optionalFileDelete", [path])` instead.
 
 Notes:
 
@@ -545,7 +544,7 @@ Notes:
 
 - Pins are stored per xite and survive a restart.
 - The `cors-` and `merged-` prefixes are not resolved here. To pin files of a hub, pass the hub in `address`.
-- Send an array or an object. A bare string is also read as `address` and fails with `Forbidden`.
+- A bare string is read as `inner_path` for the page's own xite. (On EpixNet v0.6.8 it is also read as `address` and fails with `Forbidden`, so send an array or an object there.)
 - A missing `inner_path` is an error: `inner_path required`.
 
 ### optionalFileUnpin
@@ -639,7 +638,7 @@ console.log("Helping with " + result.num + " files, " + result.size + " bytes");
 
 Notes:
 
-- Send an array or an object. A bare string is read as `address`.
+- A bare string is read as `directory`, with an empty `title`, for the page's own xite. (On EpixNet v0.6.8 it is also read as `title` and `address`, so send an array or an object there.)
 - Errors: `optionalHelp: directory required`, `Forbidden`, `Unknown xite`.
 
 ### OptionalHelp

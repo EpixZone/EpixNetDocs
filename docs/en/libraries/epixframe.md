@@ -402,7 +402,7 @@ Reference: [Merger, feed and search commands](../api/merger.md) and [Feeds, noti
 | `optionalFileList(filterInnerPath?, opts?)` | `optionalFileList` | Resolves with this xite's optional files, by default the downloaded ones. `filterInnerPath` is a SQL `LIKE` pattern such as `"data/videos/%"`. `opts` takes `address`, `filter`, `orderby` and `limit`, and may be the only argument |
 | `optionalFilePin(path)` | `optionalFilePin` | Pins a file so it is kept |
 | `optionalFileUnpin(path)` | `optionalFileUnpin` | Removes the pin |
-| `optionalFileDelete(path)` | `optionalFileDelete` | Deletes the local copy |
+| `optionalFileDelete(path)` | `optionalFileDelete` | Deletes the local copy. Sends the path as a bare string, which EpixNet v0.6.8 refuses with `Forbidden` (see [`optionalFileDelete`](../api/files.md#optionalfiledelete)) |
 | `optionalHelp(directory, title, address?)` | `optionalHelp` | Starts helping to distribute a directory of optional files. Resolves with `{num, size}` |
 | `optionalHelpRemove(directory, address?)` | `optionalHelpRemove` | Stops helping |
 
